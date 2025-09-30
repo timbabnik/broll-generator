@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Asset;
 use App\Models\Sentence;
-use App\Services\SeedanceService;
-use App\Services\SeedreamService;
+use App\Services\FalAIVideoService;
+use App\Services\FalAIImageService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -24,11 +24,11 @@ class GenerateMediaJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $seedreamService = app(SeedreamService::class);
-            $seedanceService = app(SeedanceService::class);
+            $falImageService = app(FalAIImageService::class);
+            $falVideoService = app(FalAIVideoService::class);
 
             // Generate image
-            $imageResult = $seedreamService->generateImage($this->sentence->image_prompt);
+            $imageResult = $falImageService->generateImage($this->sentence->image_prompt);
             
             if ($imageResult['success']) {
                 Asset::create([
@@ -47,7 +47,7 @@ class GenerateMediaJob implements ShouldQueue
 
             // Generate video (with image reference if available)
             $imageUrl = $imageResult['success'] ? $imageResult['url'] : null;
-            $videoResult = $seedanceService->generateVideo($this->sentence->video_prompt, $imageUrl);
+            $videoResult = $falVideoService->generateVideo($this->sentence->video_prompt, $imageUrl);
             
             if ($videoResult['success']) {
                 Asset::create([

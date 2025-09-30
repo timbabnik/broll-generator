@@ -29,7 +29,18 @@ class OpenAIService
             throw new \Exception('Failed to split script into sentences');
         }
 
-        return $response;
+        // Try to decode JSON response
+        $decoded = json_decode($response, true);
+        
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        
+        // If not JSON, split by sentences manually
+        $sentences = preg_split('/[.!?]+/', $script);
+        $sentences = array_filter(array_map('trim', $sentences));
+        
+        return array_values($sentences);
     }
 
     /**

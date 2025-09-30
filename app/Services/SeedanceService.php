@@ -5,28 +5,29 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class SeedanceService
+class FalAIVideoService
 {
     private string $apiKey;
     private string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = config('services.seedance.api_key');
-        $this->baseUrl = config('services.seedance.base_url', 'https://api.seedance.ai/v1');
+        $this->apiKey = config('services.fal.api_key');
+        $this->baseUrl = config('services.fal.base_url', 'https://fal.run');
     }
 
     /**
-     * Generate video from prompt
+     * Generate video from prompt using fal.ai
      */
     public function generateVideo(string $prompt, ?string $imageUrl = null): array
     {
         try {
             $payload = [
                 'prompt' => $prompt,
-                'model' => 'runway-gen3',
                 'duration' => 5, // 5 seconds default
-                'quality' => 'hd',
+                'fps' => 24,
+                'aspect_ratio' => '16:9',
+                'seed' => null, // Optional seed for reproducibility
             ];
 
             // If image URL provided, use it as reference
@@ -35,21 +36,22 @@ class SeedanceService
             }
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Key ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/videos/generate', $payload);
+            ])->post($this->baseUrl . '/fal-ai/seedance', $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
                 
                 return [
                     'success' => true,
-                    'url' => $data['data'][0]['url'] ?? null,
-                    'task_id' => $data['task_id'] ?? null,
+                    'url' => $data['video']['url'] ?? null,
+                    'task_id' => $data['request_id'] ?? null,
                     'metadata' => [
-                        'model' => 'runway-gen3',
+                        'model' => 'seedance',
                         'duration' => 5,
-                        'quality' => 'hd',
+                        'fps' => 24,
+                        'aspect_ratio' => '16:9',
                         'prompt' => $prompt,
                         'image_url' => $imageUrl,
                         'response' => $data
@@ -57,7 +59,7 @@ class SeedanceService
                 ];
             }
 
-            Log::error('Seedance API error', [
+            Log::error('fal.ai API error', [
                 'status' => $response->status(),
                 'response' => $response->body()
             ]);
@@ -69,7 +71,7 @@ class SeedanceService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Seedance API exception', [
+            Log::error('fal.ai API exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

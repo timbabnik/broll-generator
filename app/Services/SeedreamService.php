@@ -5,32 +5,31 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class SeedreamService
+class FalAIImageService
 {
     private string $apiKey;
     private string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = config('services.seedream.api_key');
-        $this->baseUrl = config('services.seedream.base_url', 'https://api.seedream.ai/v1');
+        $this->apiKey = config('services.fal.api_key');
+        $this->baseUrl = config('services.fal.base_url', 'https://fal.run');
     }
 
     /**
-     * Generate image from prompt
+     * Generate image from prompt using fal.ai
      */
     public function generateImage(string $prompt): array
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Key ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/images/generate', [
+            ])->post($this->baseUrl . '/fal-ai/flux/dev', [
                 'prompt' => $prompt,
-                'model' => 'stable-diffusion-xl',
-                'size' => '1024x1024',
-                'quality' => 'hd',
-                'n' => 1,
+                'image_size' => 'square_hd',
+                'num_inference_steps' => 28,
+                'enable_safety_checker' => true,
             ]);
 
             if ($response->successful()) {
@@ -38,18 +37,17 @@ class SeedreamService
                 
                 return [
                     'success' => true,
-                    'url' => $data['data'][0]['url'] ?? null,
+                    'url' => $data['images'][0]['url'] ?? null,
                     'metadata' => [
-                        'model' => 'stable-diffusion-xl',
-                        'size' => '1024x1024',
-                        'quality' => 'hd',
+                        'model' => 'flux/dev',
+                        'size' => 'square_hd',
                         'prompt' => $prompt,
                         'response' => $data
                     ]
                 ];
             }
 
-            Log::error('Seedream API error', [
+            Log::error('fal.ai API error', [
                 'status' => $response->status(),
                 'response' => $response->body()
             ]);
@@ -61,7 +59,7 @@ class SeedreamService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Seedream API exception', [
+            Log::error('fal.ai API exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

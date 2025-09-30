@@ -45,14 +45,9 @@ return [
         'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
     ],
 
-    'seedream' => [
-        'api_key' => env('SEEDREAM_API_KEY'),
-        'base_url' => env('SEEDREAM_BASE_URL', 'https://api.seedream.ai/v1'),
-    ],
-
-    'seedance' => [
-        'api_key' => env('SEEDANCE_API_KEY'),
-        'base_url' => env('SEEDANCE_BASE_URL', 'https://api.seedance.ai/v1'),
+    'fal' => [
+        'api_key' => env('FAL_API_KEY'),
+        'base_url' => env('FAL_BASE_URL', 'https://fal.run'),
     ],
 
 ];
