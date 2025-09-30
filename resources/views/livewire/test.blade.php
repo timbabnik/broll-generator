@@ -115,60 +115,60 @@
 <body class="bg-gray-50">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 glass-effect rounded-3xl m-4 shadow-2xl border border-white/20">
+        <div class="w-56 glass-effect rounded-2xl m-3 shadow-xl border border-white/20">
             <!-- Logo -->
-            <div class="p-8">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-video text-white text-lg"></i>
+            <div class="p-5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-video text-white text-sm"></i>
                     </div>
                     <div>
-                        <span class="text-2xl font-bold gradient-text">B-Roll</span>
-                        <p class="text-xs text-gray-500 font-medium">Creative Studio</p>
+                        <span class="text-xl font-bold gradient-text">GoldenTree</span>
+                        <p class="text-xs text-gray-500 font-medium">AI Studio</p>
                     </div>
                 </div>
             </div>
 
             <!-- Menu -->
-            <div class="px-8">
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6">PROJECTS</h3>
-                <nav class="space-y-3">
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover-lift smooth-transition">
-                        <i class="fas fa-th-large text-lg"></i>
-                        <span class="font-medium">Project 1</span>
+            <div class="px-5">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">PROJECTS</h3>
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg hover-lift smooth-transition">
+                        <i class="fas fa-th-large text-sm"></i>
+                        <span class="font-medium text-sm">Project 1</span>
                         <div class="ml-auto w-2 h-2 bg-white rounded-full"></div>
                     </a>
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-tasks text-lg"></i>
-                        <span class="font-medium">Project 2</span>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-tasks text-sm"></i>
+                        <span class="font-medium text-sm">Project 2</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-calendar text-lg"></i>
-                        <span class="font-medium">Project 3</span>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-calendar text-sm"></i>
+                        <span class="font-medium text-sm">Project 3</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-chart-bar text-lg"></i>
-                        <span class="font-medium">Project 4</span>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-chart-bar text-sm"></i>
+                        <span class="font-medium text-sm">Project 4</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-users text-lg"></i>
-                        <span class="font-medium">Project 5</span>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-users text-sm"></i>
+                        <span class="font-medium text-sm">Project 5</span>
                     </a>
                 </nav>
             </div>
 
             <!-- General -->
-            <div class="px-8 mt-10">
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6">GENERAL</h3>
-                <nav class="space-y-3">
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-cog text-lg"></i>
-                        <span class="font-medium">Settings</span>
+            <div class="px-5 mt-6">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">GENERAL</h3>
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-cog text-sm"></i>
+                        <span class="font-medium text-sm">Settings</span>
                     </a>
                     
-                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 rounded-xl smooth-transition hover-lift">
-                        <i class="fas fa-sign-out-alt text-lg"></i>
-                        <span class="font-medium">Logout</span>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 rounded-lg smooth-transition hover-lift">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
+                        <span class="font-medium text-sm">Logout</span>
                     </a>
                 </nav>
             </div>
@@ -180,26 +180,26 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Header -->
-            <header class="glass-effect mr-4 shadow-2xl my-4 rounded-3xl border border-white/20 px-8 py-6">
+            <header class="glass-effect mr-3 shadow-xl my-3 rounded-2xl border border-white/20 px-6 py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-4">
                         <div class="relative">
-                            <input type="text" placeholder="Search your b-roll library..." class="w-96 pl-12 pr-6 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 bg-white/80 backdrop-blur-sm shadow-lg smooth-transition">
-                            <i class="fas fa-search absolute left-4 top-5 text-gray-400 text-lg"></i>
+                            <input type="text" placeholder="Search your b-roll library..." class="w-80 pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/80 backdrop-blur-sm shadow-lg smooth-transition">
+                            <i class="fas fa-search absolute left-3 top-4 text-gray-400 text-sm"></i>
                         </div>
-                        <button id="searchShortcut" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-2xl text-sm font-medium shadow-lg hover-lift smooth-transition">
-                            <i class="fas fa-keyboard mr-2"></i><span id="shortcutText">⌘F</span>
+                        <button id="searchShortcut" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-xl text-sm font-medium shadow-lg hover-lift smooth-transition">
+                            <i class="fas fa-keyboard mr-1"></i><span id="shortcutText">⌘F</span>
                         </button>
                     </div>
-                    <div class="flex items-center space-x-6">
-                        <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-3">
                             <div class="relative">
-                                <div class="w-3 h-3 bg-green-500 rounded-full absolute -top-1 -right-1 animate-pulse"></div>
-                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face" alt="Profile" class="w-12 h-12 rounded-2xl shadow-lg border-2 border-white">
+                                <div class="w-2 h-2 bg-green-500 rounded-full absolute -top-1 -right-1 animate-pulse"></div>
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Profile" class="w-10 h-10 rounded-xl shadow-lg border-2 border-white">
                             </div>
                             <div>
-                                <p class="font-bold text-gray-800 text-lg">Totok Michael</p>
-                                <p class="text-sm text-gray-500 font-medium">Creative Director</p>
+                                <p class="font-bold text-gray-800">Totok Michael</p>
+                                <p class="text-xs text-gray-500 font-medium">Creative Director</p>
                             </div>
                         </div>
                     </div>
@@ -207,121 +207,132 @@
             </header>
 
             <!-- Dashboard Content -->
-            <main class="flex-1 p-8 overflow-y-auto glass-effect rounded-3xl shadow-2xl my-4 border border-white/20">
+            <main class="flex-1 p-6 overflow-y-auto glass-effect rounded-2xl shadow-xl my-3 border border-white/20">
                 <!-- Dashboard Header -->
-                <div class="flex items-center justify-between mb-12">
+                <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h1 class="text-4xl font-bold gradient-text mb-3">B-Roll Library</h1>
-                        <p class="text-gray-600 text-lg font-medium">Generate, search, and discover amazing b-roll content for your projects.</p>
+                        <h1 class="text-3xl font-bold gradient-text mb-2">B-Roll Library</h1>
+                        <p class="text-gray-600 font-medium">Generate, search, and discover amazing b-roll content for your projects.</p>
                     </div>
-                    <div class="flex space-x-4">
-                        <button class="gradient-button px-8 py-4 rounded-2xl font-semibold flex items-center space-x-3 shadow-xl hover-lift" onclick="openAddProjectModal()">
-                            <i class="fas fa-plus text-lg"></i>
+                    <div class="flex space-x-3">
+                        <button class="gradient-button px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 shadow-lg hover-lift" onclick="openAddProjectModal()">
+                            <i class="fas fa-plus"></i>
                             <span>Create Project</span>
                         </button>
-                        <button class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-xl hover-lift smooth-transition">
-                            <i class="fas fa-upload mr-3"></i>
+                        <button class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover-lift smooth-transition">
+                            <i class="fas fa-upload mr-2"></i>
                             Import Media
                         </button>
                     </div>
                 </div>
 
                 <!-- Project Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                    <!-- Total Projects -->
-                    <div class="modern-card rounded-3xl p-8 hover-lift">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-folder text-white text-xl"></i>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-arrow-up text-green-500 text-lg"></i>
-                                <span class="text-green-500 font-semibold text-sm">+5</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Last Project -->
+                    <div class="modern-card rounded-2xl overflow-hidden hover-lift">
+                        <div class="relative aspect-video">
+                            <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=200&h=120&fit=crop" alt="Project 1" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-3 left-3 right-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-white font-bold text-lg">Project Alpha</div>
+                                        <div class="text-white/80 text-sm">Creative Campaign</div>
+                                    </div>
+                                    <div class="bg-green-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium">
+                                        <i class="fas fa-check mr-1"></i>
+                                        Done
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-5xl font-bold gradient-text mb-3">24</div>
-                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Active Projects</h3>
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
-                            <i class="fas fa-arrow-up mr-2"></i>
-                            Growing this month
+                        <div class="p-5 bg-gradient-to-r from-blue-50 to-purple-50">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Last Project</div>
+                                   
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs text-gray-500">Active</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Photos -->
-                    <div class="modern-card rounded-3xl p-8 hover-lift">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-image text-white text-xl"></i>
+                    <!-- Total API Cost -->
+                    <div class="modern-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-dollar-sign text-white text-sm"></i>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <i class="fas fa-arrow-up text-purple-500 text-lg"></i>
-                                <span class="text-purple-500 font-semibold text-sm">+6</span>
+                                <i class="fas fa-arrow-up text-blue-500 text-sm"></i>
+                                <span class="text-blue-500 font-semibold text-xs">+$12</span>
                             </div>
                         </div>
-                        <div class="text-5xl font-bold text-purple-600 mb-3">10</div>
-                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Photos</h3>
-                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
-                            <i class="fas fa-arrow-up mr-2"></i>
-                            New additions
+                        <div class="text-4xl font-bold text-blue-600 mb-2">$247</div>
+                        <h3 class="text-gray-600 font-semibold mb-3">API Cost</h3>
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            This month
                         </div>
                     </div>
 
-                    <!-- Videos -->
-                    <div class="modern-card rounded-3xl p-8 hover-lift">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-video text-white text-xl"></i>
+                    <!-- All Photos -->
+                    <div class="modern-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-image text-white text-sm"></i>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <i class="fas fa-arrow-up text-orange-500 text-lg"></i>
-                                <span class="text-orange-500 font-semibold text-sm">+2</span>
+                                <i class="fas fa-arrow-up text-slate-500 text-sm"></i>
+                                <span class="text-slate-500 font-semibold text-xs">+24</span>
                             </div>
                         </div>
-                        <div class="text-5xl font-bold text-orange-600 mb-3">12</div>
-                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Videos</h3>
-                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
-                            <i class="fas fa-arrow-up mr-2"></i>
-                            Fresh content
+                        <div class="text-4xl font-bold text-slate-600 mb-2">1,247</div>
+                        <h3 class="text-gray-600 font-semibold mb-3">All Photos</h3>
+                        <div class="bg-gradient-to-r from-slate-500 to-slate-600 text-white text-xs px-3 py-1 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-images mr-1"></i>
+                            Total collection
                         </div>
                     </div>
 
-                    <!-- Pending -->
-                    <div class="modern-card rounded-3xl p-8 hover-lift">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-2xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-clock text-white text-xl"></i>
+                    <!-- All Videos -->
+                    <div class="modern-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-video text-white text-sm"></i>
                             </div>
-                            <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-arrow-up text-cyan-500 text-sm"></i>
+                                <span class="text-cyan-500 font-semibold text-xs">+8</span>
+                            </div>
                         </div>
-                        <div class="text-5xl font-bold text-slate-600 mb-3">2</div>
-                        <h3 class="text-gray-600 font-semibold text-lg mb-4">In Review</h3>
-                        <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
-                            <i class="fas fa-hourglass-half mr-2"></i>
-                            Processing
+                        <div class="text-4xl font-bold text-cyan-600 mb-2">456</div>
+                        <h3 class="text-gray-600 font-semibold mb-3">All Videos</h3>
+                        <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white text-xs px-3 py-1 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-video mr-1"></i>
+                            Total collection
                         </div>
                     </div>
                 </div>
 
                 <!-- Video & Photo Library -->
                 <div class="mb-12">
-                    <div class="flex items-center justify-between mb-8">
-                        <div>
-                            <h2 class="text-3xl font-bold gradient-text mb-2">Media Library</h2>
-                            <p class="text-gray-600 text-lg">Browse and manage your creative assets</p>
-                        </div>
-                    </div>
+                    
 
                     <!-- Media Gallery -->
                     <div class="modern-card rounded-3xl shadow-2xl p-8">
                         <div class="flex items-center justify-between mb-8">
                             <div class="flex space-x-4">
-                                <button class="filter-btn px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-2xl font-semibold shadow-lg hover-lift smooth-transition" data-filter="all">
+                                <button class="filter-btn px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white text-sm rounded-2xl font-semibold shadow-lg hover-lift smooth-transition" data-filter="all">
                                     <i class="fas fa-th mr-2"></i>All Media
                                 </button>
-                                <button class="filter-btn px-6 py-3 bg-gray-100 hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600 hover:text-white text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="videos">
+                                <button class="filter-btn px-6 py-3 bg-gray-100  text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="videos">
                                     <i class="fas fa-video mr-2"></i>Videos
                                 </button>
-                                <button class="filter-btn px-6 py-3 bg-gray-100 hover:bg-gradient-to-r hover:from-purple-500 hover:to-purple-600 hover:text-white text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="photos">
+                                <button class="filter-btn px-6 py-3 bg-gray-100  text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="photos">
                                     <i class="fas fa-image mr-2"></i>Photos
                                 </button>
                             </div>
@@ -552,15 +563,15 @@
                     e.preventDefault();
                     console.log('Button clicked!', this.textContent);
                     
-                    // Remove green from all buttons
+                    // Reset all buttons to inactive state
                     buttons.forEach(btn => {
-                        btn.classList.remove('bg-green-500', 'text-white');
+                        btn.classList.remove('bg-gradient-to-r', 'from-slate-500', 'to-slate-600', 'text-white', 'shadow-lg');
                         btn.classList.add('bg-gray-100', 'text-gray-600');
                     });
                     
-                    // Add green to clicked button
+                    // Set clicked button to active state
                     this.classList.remove('bg-gray-100', 'text-gray-600');
-                    this.classList.add('bg-green-500', 'text-white');
+                    this.classList.add('bg-gradient-to-r', 'from-slate-500', 'to-slate-600', 'text-white', 'shadow-lg');
                     
                     console.log('Button styles updated');
                     
@@ -854,7 +865,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Get search input
-    const searchInput = document.querySelector('input[placeholder="Search task"]');
+    const searchInput = document.querySelector('input[placeholder="Search your b-roll library..."]');
     
     // Handle keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -862,8 +873,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if ((isMac && e.metaKey && e.key === 'f') || 
             (!isMac && e.ctrlKey && e.key === 'f')) {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Focus and select the search input
             searchInput.focus();
             searchInput.select();
+            
+            // Add a subtle highlight effect
+            searchInput.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
+            setTimeout(() => {
+                searchInput.style.boxShadow = '';
+            }, 1000);
         }
     });
     
@@ -871,6 +891,71 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchShortcut').addEventListener('click', function() {
         searchInput.focus();
         searchInput.select();
+        
+        // Add a subtle highlight effect
+        searchInput.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
+        setTimeout(() => {
+            searchInput.style.boxShadow = '';
+        }, 1000);
+    });
+    
+    // Add visual feedback when search input is focused
+    searchInput.addEventListener('focus', function() {
+        this.style.transform = 'scale(1.02)';
+        this.style.transition = 'all 0.2s ease';
+    });
+    
+    searchInput.addEventListener('blur', function() {
+        this.style.transform = 'scale(1)';
+    });
+    
+    // Search functionality for media library
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        const mediaItems = document.querySelectorAll('.media-section [class*="cursor-pointer"]');
+        const projectSummaryCards = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4.gap-6.mb-8');
+        
+        if (searchTerm === '') {
+            // Show all items if search is empty
+            mediaItems.forEach(item => {
+                item.style.display = 'block';
+            });
+            // Show project summary cards
+            if (projectSummaryCards) {
+                projectSummaryCards.style.display = 'grid';
+            }
+        } else {
+            // Hide project summary cards when searching
+            if (projectSummaryCards) {
+                projectSummaryCards.style.display = 'none';
+            }
+            
+            // Filter items based on search term - hide non-matching items completely
+            mediaItems.forEach(item => {
+                const itemText = item.textContent.toLowerCase();
+                const itemTitle = item.querySelector('p:first-of-type')?.textContent.toLowerCase() || '';
+                const itemDescription = item.querySelector('p:last-of-type')?.textContent.toLowerCase() || '';
+                
+                if (itemText.includes(searchTerm) || itemTitle.includes(searchTerm) || itemDescription.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    });
+    
+    // Clear search functionality
+    const clearSearch = () => {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+    };
+    
+    // Add clear button functionality (optional)
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            clearSearch();
+        }
     });
 });
 </script>
