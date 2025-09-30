@@ -32,7 +32,7 @@ class GenerateShotlistJob implements ShouldQueue
             }
 
             $this->sentence->update([
-                'shotlist' => $shotlist,
+                'shotlist' => json_encode($shotlist),
                 'status' => 'completed'
             ]);
 

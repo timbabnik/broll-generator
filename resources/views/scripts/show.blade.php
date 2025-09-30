@@ -164,6 +164,85 @@
                     @endforeach
                 </div>
             @endif
+
+            <!-- Image Prompts Summary -->
+            @if($script->sentences->where('image_prompt', '!=', null)->count() > 0)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-8">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Generated Image Prompts</h3>
+                        
+                        <div class="space-y-6">
+                            @foreach($script->sentences->where('image_prompt', '!=', null) as $sentence)
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <h4 class="text-md font-semibold text-gray-800">
+                                            Sentence {{ $sentence->order_index + 1 }}
+                                        </h4>
+                                        <span class="text-xs text-gray-500">
+                                            {{ $sentence->created_at->format('M d, Y H:i') }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="text-sm text-gray-600 italic">"{{ $sentence->original_sentence }}"</p>
+                                    </div>
+
+                                    @php
+                                        $shotlistData = json_decode($sentence->shotlist, true);
+                                    @endphp
+
+                                    @if($shotlistData && is_array($shotlistData))
+                                        <div class="grid gap-4">
+                                            @foreach($shotlistData as $index => $shot)
+                                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                                                    <div class="flex items-center justify-between mb-2">
+                                                        <div class="flex items-center space-x-3">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                Second {{ $shot['second'] ?? $index }}
+                                                            </span>
+                                                            <span class="text-sm font-medium text-gray-700">
+                                                                {{ $shot['script'] ?? 'Script text' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="text-sm text-gray-600 leading-relaxed">
+                                                        {{ $shot['shot'] ?? 'Visual description' }}
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @if($sentence->image_prompt)
+                                        <div class="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                                            <div class="flex items-center mb-2">
+                                                <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                                <span class="text-sm font-medium text-green-800">Enhanced Image Prompt</span>
+                                            </div>
+                                            <p class="text-sm text-gray-700 leading-relaxed">{{ $sentence->image_prompt }}</p>
+                                        </div>
+                                    @endif
+
+                                    @if($sentence->video_prompt)
+                                        <div class="mt-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+                                            <div class="flex items-center mb-2">
+                                                <svg class="w-4 h-4 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                </svg>
+                                                <span class="text-sm font-medium text-purple-800">Video Generation Prompt</span>
+                                            </div>
+                                            <p class="text-sm text-gray-700 leading-relaxed">{{ $sentence->video_prompt }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </x-layouts.app>

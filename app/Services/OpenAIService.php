@@ -21,7 +21,7 @@ class OpenAIService
      */
     public function splitIntoSentences(string $script): array
     {
-        $prompt = "Split the following script into individual sentences. Return only a JSON array of sentences, no other text:\n\n" . $script;
+        $prompt = "You are a precise script analyst. I will give you a script, and you will break it down sentence by sentence.\n\nFormat your response as a JSON array like this:\n\n[\n  {\"sentence\": 1, \"text\": \"First sentence of the script\"},\n  {\"sentence\": 2, \"text\": \"Next sentence\"},\n  ...\n]\n\nScript:\n" . $script;
 
         $response = $this->makeRequest($prompt);
         
@@ -46,9 +46,9 @@ class OpenAIService
     /**
      * Generate shotlist for a sentence
      */
-    public function generateShotlist(string $sentence): string
+    public function generateShotlist(string $sentence): array
     {
-        $prompt = "Create a detailed shotlist for this sentence, broken down by seconds. Include camera angles, movements, and visual elements. Be specific about timing:\n\n" . $sentence;
+        $prompt = "Break down this script sentence into 2-4 distinct visual moments, each focusing on a different part of the action:\"" . $sentence . "\"\n\nFormat your response as a JSON array like this:\n\n[\n  {\"second\": 0, \"script\": \"First part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  {\"second\": 1, \"script\": \"Second part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  ...\n]\n\nIMPORTANT: Break the sentence into meaningful parts (like 'pausing to watch' then 'the rain fall' then 'in silence'). Don't repeat the entire sentence for each second.";
 
         $response = $this->makeRequest($prompt);
         
@@ -56,7 +56,15 @@ class OpenAIService
             throw new \Exception('Failed to generate shotlist');
         }
 
-        return $response;
+        // Try to decode JSON response
+        $decoded = json_decode($response, true);
+        
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        
+        // If not JSON, return the raw response as a single item
+        return [['second' => 0, 'script' => $sentence, 'shot' => $response]];
     }
 
     /**
@@ -64,7 +72,7 @@ class OpenAIService
      */
     public function enhanceToImagePrompt(string $shotlist): string
     {
-        $prompt = "Convert this shotlist into a rich, detailed image prompt for AI image generation. Include style, lighting, composition, and visual details:\n\n" . $shotlist;
+        $prompt = "Shotlist:\n" . $shotlist . "\n\nRewrite the above shot as if you are a direct response video director and cinematographer who has created 1000+ clickbait, emotional, high-converting video ads for European women over 40.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for first frame image generation for Seedream v4 image model.";
 
         $response = $this->makeRequest($prompt);
         
@@ -80,7 +88,7 @@ class OpenAIService
      */
     public function enhanceToVideoPrompt(string $shotlist, string $imagePrompt): string
     {
-        $prompt = "Create a detailed video generation prompt based on this shotlist and image prompt. Include camera movements, transitions, timing, and visual effects:\n\nShotlist:\n" . $shotlist . "\n\nImage Prompt:\n" . $imagePrompt;
+        $prompt = "This is shot description: \"" . $shotlist . "\"\n\nThis is first frame image prompt from the shot: \"" . $imagePrompt . "\"\n\nImage generated with image prompt above will be used as a first frame for image to video generation with model Seedance v1 lite.\n\nNow make prompt for Seedance v1 lite that will bring to life the image.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for video for Seedance v1 lite image to video model.";
 
         $response = $this->makeRequest($prompt);
         

@@ -24,15 +24,21 @@ class EnhancePromptsJob implements ShouldQueue
         try {
             $openAIService = app(OpenAIService::class);
 
+            // Parse the shotlist JSON
+            $shotlistData = json_decode($this->sentence->shotlist, true);
+            if (!$shotlistData) {
+                throw new \Exception('Invalid shotlist data');
+            }
+
             // Generate image prompt from shotlist
-            $imagePrompt = $openAIService->enhanceToImagePrompt($this->sentence->shotlist);
+            $imagePrompt = $openAIService->enhanceToImagePrompt(json_encode($shotlistData));
             
             if (empty($imagePrompt)) {
                 throw new \Exception('Failed to generate image prompt');
             }
 
             // Generate video prompt from shotlist and image prompt
-            $videoPrompt = $openAIService->enhanceToVideoPrompt($this->sentence->shotlist, $imagePrompt);
+            $videoPrompt = $openAIService->enhanceToVideoPrompt(json_encode($shotlistData), $imagePrompt);
             
             if (empty($videoPrompt)) {
                 throw new \Exception('Failed to generate video prompt');

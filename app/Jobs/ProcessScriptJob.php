@@ -33,10 +33,15 @@ class ProcessScriptJob implements ShouldQueue
             }
 
             // Create sentence records
-            foreach ($sentences as $index => $sentence) {
+            foreach ($sentences as $index => $sentenceData) {
+                // Handle both old format (string) and new format (object with text field)
+                $sentenceText = is_array($sentenceData) && isset($sentenceData['text']) 
+                    ? $sentenceData['text'] 
+                    : $sentenceData;
+                
                 Sentence::create([
                     'script_id' => $this->script->id,
-                    'original_sentence' => $sentence,
+                    'original_sentence' => $sentenceText,
                     'order_index' => $index,
                     'status' => 'pending'
                 ]);
