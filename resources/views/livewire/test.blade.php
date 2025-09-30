@@ -41,64 +41,134 @@
             border-radius: 50%;
             background: white;
         }
+        
+        /* Enhanced Modern Styles */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .smooth-transition {
+            transition: all 0.3s ease;
+        }
+        
+        .modern-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .modern-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+        
+        .gradient-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-white rounded-2xl m-4 shadow-lg">
+        <div class="w-64 glass-effect rounded-3xl m-4 shadow-2xl border border-white/20">
             <!-- Logo -->
-            <div class="p-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-check text-white text-sm"></i>
+            <div class="p-8">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-video text-white text-lg"></i>
                     </div>
-                    <span class="text-xl font-bold text-gray-800">GoldenTree</span>
+                    <div>
+                        <span class="text-2xl font-bold gradient-text">B-Roll</span>
+                        <p class="text-xs text-gray-500 font-medium">Creative Studio</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Menu -->
-            <div class="px-6">
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">PROJECTS</h3>
-                <nav class="space-y-2">
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 bg-green-500 text-white rounded-lg">
-                        <i class="fas fa-th-large"></i>
-                        <span>Project 1</span>
+            <div class="px-8">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6">PROJECTS</h3>
+                <nav class="space-y-3">
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover-lift smooth-transition">
+                        <i class="fas fa-th-large text-lg"></i>
+                        <span class="font-medium">Project 1</span>
+                        <div class="ml-auto w-2 h-2 bg-white rounded-full"></div>
                     </a>
-                    <a href="#" class="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-tasks"></i>
-                            <span>Project 2</span>
-                        </div>
-                        
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-tasks text-lg"></i>
+                        <span class="font-medium">Project 2</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-calendar"></i>
-                        <span>Project 3</span>
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-calendar text-lg"></i>
+                        <span class="font-medium">Project 3</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Project 4</span>
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-chart-bar text-lg"></i>
+                        <span class="font-medium">Project 4</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-users"></i>
-                        <span>Project 5</span>
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-users text-lg"></i>
+                        <span class="font-medium">Project 5</span>
                     </a>
                 </nav>
             </div>
 
             <!-- General -->
-            <div class="px-6 mt-8">
-                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">GENERAL</h3>
-                <nav class="space-y-2">
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
+            <div class="px-8 mt-10">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6">GENERAL</h3>
+                <nav class="space-y-3">
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-cog text-lg"></i>
+                        <span class="font-medium">Settings</span>
                     </a>
                     
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
+                    <a href="#" class="flex items-center space-x-4 px-4 py-3 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 rounded-xl smooth-transition hover-lift">
+                        <i class="fas fa-sign-out-alt text-lg"></i>
+                        <span class="font-medium">Logout</span>
                     </a>
                 </nav>
             </div>
@@ -110,24 +180,26 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Header -->
-            <header class="bg-white mr-2 shadow-sm my-4 rounded-2xl border-b px-6 py-4">
+            <header class="glass-effect mr-4 shadow-2xl my-4 rounded-3xl border border-white/20 px-8 py-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-6">
                         <div class="relative">
-                            <input type="text" placeholder="Search task" class="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" placeholder="Search your b-roll library..." class="w-96 pl-12 pr-6 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 bg-white/80 backdrop-blur-sm shadow-lg smooth-transition">
+                            <i class="fas fa-search absolute left-4 top-5 text-gray-400 text-lg"></i>
                         </div>
-                        <button class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-sm text-gray-600">
-                            <i class="fas fa-keyboard mr-1"></i>⌘F
+                        <button id="searchShortcut" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-4 rounded-2xl text-sm font-medium shadow-lg hover-lift smooth-transition">
+                            <i class="fas fa-keyboard mr-2"></i><span id="shortcutText">⌘F</span>
                         </button>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        
-                        <div class="flex items-center space-x-3">
-                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Profile" class="w-10 h-10 rounded-full">
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <div class="w-3 h-3 bg-green-500 rounded-full absolute -top-1 -right-1 animate-pulse"></div>
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face" alt="Profile" class="w-12 h-12 rounded-2xl shadow-lg border-2 border-white">
+                            </div>
                             <div>
-                                <p class="font-semibold text-gray-800">Totok Michael</p>
-                                <p class="text-sm text-gray-500">tmichael20@mail.com</p>
+                                <p class="font-bold text-gray-800 text-lg">Totok Michael</p>
+                                <p class="text-sm text-gray-500 font-medium">Creative Director</p>
                             </div>
                         </div>
                     </div>
@@ -135,224 +207,316 @@
             </header>
 
             <!-- Dashboard Content -->
-            <main class="flex-1 p-6 overflow-y-auto bg-white rounded-2xl shadow-lg my-4">
+            <main class="flex-1 p-8 overflow-y-auto glass-effect rounded-3xl shadow-2xl my-4 border border-white/20">
                 <!-- Dashboard Header -->
-                <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center justify-between mb-12">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-800">B-Roll Library</h1>
-                        <p class="text-gray-600 mt-2">Generate, search, and find b roll photos and videos.</p>
+                        <h1 class="text-4xl font-bold gradient-text mb-3">B-Roll Library</h1>
+                        <p class="text-gray-600 text-lg font-medium">Generate, search, and discover amazing b-roll content for your projects.</p>
                     </div>
-                    <div class="flex space-x-3">
-                        <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium flex items-center space-x-2" onclick="openAddProjectModal()">
-                            <i class="fas fa-plus"></i>
-                            <span>Add Project</span>
+                    <div class="flex space-x-4">
+                        <button class="gradient-button px-8 py-4 rounded-2xl font-semibold flex items-center space-x-3 shadow-xl hover-lift" onclick="openAddProjectModal()">
+                            <i class="fas fa-plus text-lg"></i>
+                            <span>Create Project</span>
                         </button>
-                        <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium">
-                            Import Data
+                        <button class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-xl hover-lift smooth-transition">
+                            <i class="fas fa-upload mr-3"></i>
+                            Import Media
                         </button>
                     </div>
                 </div>
 
                 <!-- Project Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     <!-- Total Projects -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-gray-600 font-medium">Your Projects</h3>
-                            <i class="fas fa-arrow-up text-green-500"></i>
+                    <div class="modern-card rounded-3xl p-8 hover-lift">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-folder text-white text-xl"></i>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-arrow-up text-green-500 text-lg"></i>
+                                <span class="text-green-500 font-semibold text-sm">+5</span>
+                            </div>
                         </div>
-                        <div class="text-4xl font-bold text-green-600 mb-2">24</div>
-                        <div class="bg-green-500 text-white text-xs px-3 py-1 rounded-full inline-flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            5 Increased from last month
-                        </div>
-                    </div>
-
-                    <!-- Ended Projects -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-gray-600 font-medium">Photos</h3>
-                            <i class="fas fa-arrow-up text-gray-400"></i>
-                        </div>
-                        <div class="text-4xl font-bold text-gray-600 mb-2">10</div>
-                        <div class="bg-gray-500 text-white text-xs px-3 py-1 rounded-full inline-flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            6 Increased from last month
+                        <div class="text-5xl font-bold gradient-text mb-3">24</div>
+                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Active Projects</h3>
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-arrow-up mr-2"></i>
+                            Growing this month
                         </div>
                     </div>
 
-                    <!-- Running Projects -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-gray-600 font-medium">Videos</h3>
-                            <i class="fas fa-arrow-up text-gray-400"></i>
+                    <!-- Photos -->
+                    <div class="modern-card rounded-3xl p-8 hover-lift">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-image text-white text-xl"></i>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-arrow-up text-purple-500 text-lg"></i>
+                                <span class="text-purple-500 font-semibold text-sm">+6</span>
+                            </div>
                         </div>
-                        <div class="text-4xl font-bold text-gray-600 mb-2">12</div>
-                        <div class="bg-gray-500 text-white text-xs px-3 py-1 rounded-full inline-flex items-center">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            2 Increased from last month
+                        <div class="text-5xl font-bold text-purple-600 mb-3">10</div>
+                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Photos</h3>
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-arrow-up mr-2"></i>
+                            New additions
                         </div>
                     </div>
 
-                    <!-- Pending Project -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-gray-600 font-medium">Pending Project</h3>
-                            <i class="fas fa-arrow-up text-gray-400"></i>
+                    <!-- Videos -->
+                    <div class="modern-card rounded-3xl p-8 hover-lift">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-video text-white text-xl"></i>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-arrow-up text-orange-500 text-lg"></i>
+                                <span class="text-orange-500 font-semibold text-sm">+2</span>
+                            </div>
                         </div>
-                        <div class="text-4xl font-bold text-gray-600 mb-2">2</div>
-                        <div class="text-gray-500 text-sm">On Discuss</div>
+                        <div class="text-5xl font-bold text-orange-600 mb-3">12</div>
+                        <h3 class="text-gray-600 font-semibold text-lg mb-4">Videos</h3>
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-arrow-up mr-2"></i>
+                            Fresh content
+                        </div>
+                    </div>
+
+                    <!-- Pending -->
+                    <div class="modern-card rounded-3xl p-8 hover-lift">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-clock text-white text-xl"></i>
+                            </div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                        </div>
+                        <div class="text-5xl font-bold text-slate-600 mb-3">2</div>
+                        <h3 class="text-gray-600 font-semibold text-lg mb-4">In Review</h3>
+                        <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm px-4 py-2 rounded-full inline-flex items-center shadow-lg">
+                            <i class="fas fa-hourglass-half mr-2"></i>
+                            Processing
+                        </div>
                     </div>
                 </div>
 
                 <!-- Video & Photo Library -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Video & Photo Library</h2>
-                       
+                <div class="mb-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold gradient-text mb-2">Media Library</h2>
+                            <p class="text-gray-600 text-lg">Browse and manage your creative assets</p>
+                        </div>
                     </div>
 
                     <!-- Media Gallery -->
-                    <div class="bg-white rounded-lg shadow-sm p-0">
-                        <div class="flex items-center justify-between mb-6">
-                      
-                            <div class="flex space-x-2">
-                                <button class="filter-btn px-3 py-1 bg-green-500 text-white text-sm rounded-lg" data-filter="all">All</button>
-                                <button class="filter-btn px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-lg" data-filter="videos">Videos</button>
-                                <button class="filter-btn px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-lg" data-filter="photos">Photos</button>
+                    <div class="modern-card rounded-3xl shadow-2xl p-8">
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex space-x-4">
+                                <button class="filter-btn px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-2xl font-semibold shadow-lg hover-lift smooth-transition" data-filter="all">
+                                    <i class="fas fa-th mr-2"></i>All Media
+                                </button>
+                                <button class="filter-btn px-6 py-3 bg-gray-100 hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600 hover:text-white text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="videos">
+                                    <i class="fas fa-video mr-2"></i>Videos
+                                </button>
+                                <button class="filter-btn px-6 py-3 bg-gray-100 hover:bg-gradient-to-r hover:from-purple-500 hover:to-purple-600 hover:text-white text-gray-600 text-sm rounded-2xl font-semibold smooth-transition hover-lift" data-filter="photos">
+                                    <i class="fas fa-image mr-2"></i>Photos
+                                </button>
                             </div>
                         </div>
                         
                         <!-- Video Grid -->
-                        <div class="mb-8 p-6 media-section" data-type="videos">
-                            <h4 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
-                                <i class="fas fa-video text-blue-500 mr-2"></i>
-                                Videos
+                        <div class="mb-12 media-section" data-type="videos">
+                            <h4 class="text-xl font-bold text-gray-800 mb-8 flex items-center">
+                                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                                    <i class="fas fa-video text-white"></i>
+                                </div>
+                                Video Collection
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         2:34
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Project Demo.mp4</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        HD
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Project Demo</p>
+                                    <p class="text-sm text-gray-500">MP4 • 2.3 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         1:45
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Team Meeting.mov</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        4K
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Team Meeting</p>
+                                    <p class="text-sm text-gray-500">MOV • 5.7 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         3:12
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Tutorial.mp4</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        HD
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Tutorial Guide</p>
+                                    <p class="text-sm text-gray-500">MP4 • 8.1 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         4:28
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Presentation.mp4</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        HD
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Presentation</p>
+                                    <p class="text-sm text-gray-500">MP4 • 12.3 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         1:56
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Quick Tips.mp4</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        HD
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Quick Tips</p>
+                                    <p class="text-sm text-gray-500">MP4 • 3.2 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-video bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-play text-white text-4xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-video bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-play text-white text-5xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                    <div class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-xl font-medium">
                                         2:18
                                     </div>
-                                    <p class="text-base text-gray-600 mt-2 truncate">Review.mp4</p>
+                                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1 rounded-xl font-medium">
+                                        HD
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-4">Review Session</p>
+                                    <p class="text-sm text-gray-500">MP4 • 6.8 MB</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Photo Grid -->
-                        <div class="p-6 media-section" data-type="photos">
-                            <h4 class="text-md font-semibold text-gray-700 mb-4 flex items-center">
-                                <i class="fas fa-image text-green-500 mr-2"></i>
-                                Photos
+                        <div class="media-section" data-type="photos">
+                            <h4 class="text-xl font-bold text-gray-800 mb-8 flex items-center">
+                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                                    <i class="fas fa-image text-white"></i>
+                                </div>
+                                Photo Gallery
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Screenshot.png</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        PNG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Screenshot</p>
+                                    <p class="text-sm text-gray-500">1.2 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Design.jpg</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        JPG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Design</p>
+                                    <p class="text-sm text-gray-500">2.8 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Mockup.png</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        PNG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Mockup</p>
+                                    <p class="text-sm text-gray-500">3.1 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Logo.svg</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        SVG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Logo</p>
+                                    <p class="text-sm text-gray-500">0.8 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-rose-400 to-rose-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-rose-400 to-rose-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Banner.jpg</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        JPG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Banner</p>
+                                    <p class="text-sm text-gray-500">4.2 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-violet-400 to-violet-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-violet-400 to-violet-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Icon.png</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        PNG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Icon</p>
+                                    <p class="text-sm text-gray-500">0.5 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Chart.png</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        PNG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Chart</p>
+                                    <p class="text-sm text-gray-500">1.9 MB</p>
                                 </div>
                                 
-                                <div class="relative group cursor-pointer">
-                                    <div class="aspect-square bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl"></i>
+                                <div class="relative group cursor-pointer hover-lift">
+                                    <div class="aspect-square bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden">
+                                        <i class="fas fa-image text-white text-4xl group-hover:scale-110 smooth-transition"></i>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-2 truncate">Graph.jpg</p>
+                                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-lg font-medium">
+                                        JPG
+                                    </div>
+                                    <p class="text-lg font-semibold text-gray-800 mt-3">Graph</p>
+                                    <p class="text-sm text-gray-500">2.4 MB</p>
                                 </div>
                             </div>
                         </div>
@@ -672,3 +836,41 @@ Scene 2: Close-up of hands typing
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Detect operating system
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const isWindows = navigator.platform.toUpperCase().indexOf('WIN') >= 0;
+    
+    // Update shortcut text based on OS
+    const shortcutText = document.getElementById('shortcutText');
+    if (isMac) {
+        shortcutText.textContent = '⌘F';
+    } else if (isWindows) {
+        shortcutText.textContent = 'Ctrl+F';
+    } else {
+        shortcutText.textContent = 'Ctrl+F';
+    }
+    
+    // Get search input
+    const searchInput = document.querySelector('input[placeholder="Search task"]');
+    
+    // Handle keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Check for Cmd+F (Mac) or Ctrl+F (Windows/Linux)
+        if ((isMac && e.metaKey && e.key === 'f') || 
+            (!isMac && e.ctrlKey && e.key === 'f')) {
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        }
+    });
+    
+    // Handle button click
+    document.getElementById('searchShortcut').addEventListener('click', function() {
+        searchInput.focus();
+        searchInput.select();
+    });
+});
+</script>
