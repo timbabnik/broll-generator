@@ -30,23 +30,35 @@ class EnhancePromptsJob implements ShouldQueue
                 throw new \Exception('Invalid shotlist data');
             }
 
-            // Generate image prompt from shotlist
-            $imagePrompt = $openAIService->enhanceToImagePrompt(json_encode($shotlistData));
-            
-            if (empty($imagePrompt)) {
-                throw new \Exception('Failed to generate image prompt');
-            }
+            // Process each shot in the shotlist
+            $enhancedShots = [];
+            foreach ($shotlistData as $shot) {
+                // Generate enhanced image prompt for this individual shot
+                $enhancedImagePrompt = $openAIService->enhanceToImagePrompt($shot['shot']);
+                
+                if (empty($enhancedImagePrompt)) {
+                    throw new \Exception('Failed to generate image prompt for shot');
+                }
 
-            // Generate video prompt from shotlist and image prompt
-            $videoPrompt = $openAIService->enhanceToVideoPrompt(json_encode($shotlistData), $imagePrompt);
-            
-            if (empty($videoPrompt)) {
-                throw new \Exception('Failed to generate video prompt');
+                // Generate video prompt for this shot
+                $enhancedVideoPrompt = $openAIService->enhanceToVideoPrompt($shot['shot'], $enhancedImagePrompt);
+                
+                if (empty($enhancedVideoPrompt)) {
+                    throw new \Exception('Failed to generate video prompt for shot');
+                }
+
+                $enhancedShots[] = [
+                    'second' => $shot['second'],
+                    'script' => $shot['script'],
+                    'shot' => $shot['shot'],
+                    'image_prompt' => $enhancedImagePrompt,
+                    'video_prompt' => $enhancedVideoPrompt
+                ];
             }
 
             $this->sentence->update([
-                'image_prompt' => $imagePrompt,
-                'video_prompt' => $videoPrompt
+                'image_prompt' => json_encode($enhancedShots),
+                'video_prompt' => json_encode($enhancedShots)
             ]);
 
             // Dispatch media generation for this sentence

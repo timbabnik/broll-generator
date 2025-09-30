@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\GenerateShotlistJob;
 use App\Models\Script;
 use App\Models\Sentence;
 use App\Services\OpenAIService;

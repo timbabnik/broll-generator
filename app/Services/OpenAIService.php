@@ -48,7 +48,7 @@ class OpenAIService
      */
     public function generateShotlist(string $sentence): array
     {
-        $prompt = "Break down this script sentence into 2-4 distinct visual moments, each focusing on a different part of the action:\"" . $sentence . "\"\n\nFormat your response as a JSON array like this:\n\n[\n  {\"second\": 0, \"script\": \"First part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  {\"second\": 1, \"script\": \"Second part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  ...\n]\n\nIMPORTANT: Break the sentence into meaningful parts (like 'pausing to watch' then 'the rain fall' then 'in silence'). Don't repeat the entire sentence for each second.";
+        $prompt = "Make a shot-list for every second of this script:\"" . $sentence . "\"\n\nFormat your response as a JSON array like this:\n\n[\n  {\"second\": 0, \"script\": \"Start of the script\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  {\"second\": 1, \"script\": \"Next second\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  ...\n]";
 
         $response = $this->makeRequest($prompt);
         
@@ -68,11 +68,11 @@ class OpenAIService
     }
 
     /**
-     * Enhance shotlist into rich image prompt
+     * Enhance individual shot into rich image prompt
      */
-    public function enhanceToImagePrompt(string $shotlist): string
+    public function enhanceToImagePrompt(string $shotDescription): string
     {
-        $prompt = "Shotlist:\n" . $shotlist . "\n\nRewrite the above shot as if you are a direct response video director and cinematographer who has created 1000+ clickbait, emotional, high-converting video ads for European women over 40.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for first frame image generation for Seedream v4 image model.";
+        $prompt = "Shot description: \"" . $shotDescription . "\"\n\nRewrite the above shot as if you are a direct response video director and cinematographer who has created 1000+ clickbait, emotional, high-converting video ads for European women over 40.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for first frame image generation for Seedream v4 image model.";
 
         $response = $this->makeRequest($prompt);
         
@@ -84,11 +84,11 @@ class OpenAIService
     }
 
     /**
-     * Enhance shotlist and image prompt into video prompt
+     * Enhance individual shot and image prompt into video prompt
      */
-    public function enhanceToVideoPrompt(string $shotlist, string $imagePrompt): string
+    public function enhanceToVideoPrompt(string $shotDescription, string $imagePrompt): string
     {
-        $prompt = "This is shot description: \"" . $shotlist . "\"\n\nThis is first frame image prompt from the shot: \"" . $imagePrompt . "\"\n\nImage generated with image prompt above will be used as a first frame for image to video generation with model Seedance v1 lite.\n\nNow make prompt for Seedance v1 lite that will bring to life the image.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for video for Seedance v1 lite image to video model.";
+        $prompt = "This is shot description: \"" . $shotDescription . "\"\n\nThis is first frame image prompt from the shot: \"" . $imagePrompt . "\"\n\nImage generated with image prompt above will be used as a first frame for image to video generation with model Seedance v1 lite.\n\nNow make prompt for Seedance v1 lite that will bring to life the image.\n\nBring out as much emotion, intimacy, and realism as possible while keeping the same structure.\n\nOutput should be only a prompt for video for Seedance v1 lite image to video model.";
 
         $response = $this->makeRequest($prompt);
         
@@ -109,7 +109,7 @@ class OpenAIService
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
             ])->post($this->baseUrl . '/chat/completions', [
-                'model' => 'gpt-4',
+                'model' => 'gpt-4o-mini',
                 'messages' => [
                     [
                         'role' => 'user',

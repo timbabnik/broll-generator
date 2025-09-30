@@ -219,7 +219,7 @@
                             <i class="fas fa-plus"></i>
                             <span>Create Project</span>
                         </button>
-                        <button class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover-lift smooth-transition">
+                        <button onclick="openImportMediaModal()" class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover-lift smooth-transition">
                             <i class="fas fa-upload mr-2"></i>
                             Import Media
                         </button>
@@ -341,8 +341,8 @@
                         <!-- Video Grid -->
                         <div class="mb-12 media-section" data-type="videos">
                             <h4 class="text-xl font-bold text-gray-800 mb-8 flex items-center">
-                                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                                    <i class="fas fa-video text-white"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-800 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                                    <i class="fas fa-video text-white text-sm"></i>
                                 </div>
                                 Video Collection
                             </h4>
@@ -436,8 +436,8 @@
                         <!-- Photo Grid -->
                         <div class="media-section" data-type="photos">
                             <h4 class="text-xl font-bold text-gray-800 mb-8 flex items-center">
-                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                                    <i class="fas fa-image text-white"></i>
+                                <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-800 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                                    <i class="fas fa-image text-white text-sm"></i>
                                 </div>
                                 Photo Gallery
                             </h4>
@@ -663,11 +663,25 @@
             document.getElementById('addProjectModal').classList.add('hidden');
         }
 
+        // Import Media Modal Functions
+        function openImportMediaModal() {
+            document.getElementById('importMediaModal').classList.remove('hidden');
+        }
+
+        function closeImportMediaModal() {
+            document.getElementById('importMediaModal').classList.add('hidden');
+        }
+
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {
-            const modal = document.getElementById('addProjectModal');
-            if (e.target === modal) {
+            const addProjectModal = document.getElementById('addProjectModal');
+            const importMediaModal = document.getElementById('importMediaModal');
+            
+            if (e.target === addProjectModal) {
                 closeAddProjectModal();
+            }
+            if (e.target === importMediaModal) {
+                closeImportMediaModal();
             }
         });
     </script>
@@ -848,6 +862,104 @@ Scene 2: Close-up of hands typing
     </div>
 </div>
 
+<!-- Import Media Modal -->
+<div id="importMediaModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[95vh] overflow-y-auto border border-gray-100">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-2xl">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-upload text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Import Media</h2>
+                    <p class="text-sm text-gray-600">Upload videos and photos to your b-roll library</p>
+                </div>
+            </div>
+            <button onclick="closeImportMediaModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-8">
+            <form class="space-y-8">
+                <!-- Tags and AI Processing Options -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                        <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-tag text-blue-500 mr-2"></i>
+                            Tags (Optional)
+                        </label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm" placeholder="e.g., business, nature, technology">
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                        <h3 class="text-sm font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-magic text-green-500 mr-2"></i>
+                            AI Processing
+                        </h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3 text-green-500" checked>
+                                <span class="text-sm text-gray-700">Auto-generate descriptions using AI</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3 text-green-500" checked>
+                                <span class="text-sm text-gray-700">Extract key frames for thumbnails</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3 text-green-500">
+                                <span class="text-sm text-gray-700">Generate searchable tags automatically</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload Area -->
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 border-2 border-dashed border-blue-200">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cloud-upload-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Drop files here or click to browse</h3>
+                        <p class="text-sm text-gray-600 mb-6">Support for MP4, MOV, AVI, JPG, PNG, and more</p>
+                        
+                        <input type="file" id="mediaFiles" multiple accept="video/*,image/*" class="hidden">
+                        <button type="button" onclick="document.getElementById('mediaFiles').click()" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover-lift smooth-transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Choose Files
+                        </button>
+                    </div>
+                    
+                    <!-- File Preview Area -->
+                    <div id="filePreview" class="mt-6 hidden">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Selected Files:</h4>
+                        <div id="fileList" class="space-y-2"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between p-8 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100 rounded-b-2xl">
+            <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-info-circle mr-2"></i>
+                Files will be processed and added to your library
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="closeImportMediaModal()" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-200 rounded-xl transition-all duration-200">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <i class="fas fa-upload"></i>
+                    <span>Import Media</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Detect operating system
@@ -957,5 +1069,69 @@ document.addEventListener('DOMContentLoaded', function() {
             clearSearch();
         }
     });
+    
+    // File upload preview functionality
+    const mediaFilesInput = document.getElementById('mediaFiles');
+    const filePreview = document.getElementById('filePreview');
+    const fileList = document.getElementById('fileList');
+    
+    if (mediaFilesInput) {
+        mediaFilesInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length > 0) {
+                filePreview.classList.remove('hidden');
+                fileList.innerHTML = '';
+                
+                files.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200';
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'flex items-center space-x-3';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = file.type.startsWith('video/') ? 'fas fa-video text-blue-500' : 'fas fa-image text-purple-500';
+                    
+                    const fileName = document.createElement('span');
+                    fileName.className = 'text-sm font-medium text-gray-700';
+                    fileName.textContent = file.name;
+                    
+                    const fileSize = document.createElement('span');
+                    fileSize.className = 'text-xs text-gray-500';
+                    fileSize.textContent = formatFileSize(file.size);
+                    
+                    fileInfo.appendChild(icon);
+                    fileInfo.appendChild(fileName);
+                    fileInfo.appendChild(fileSize);
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'text-red-500 hover:text-red-700 p-1';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.onclick = () => {
+                        fileItem.remove();
+                        if (fileList.children.length === 0) {
+                            filePreview.classList.add('hidden');
+                        }
+                    };
+                    
+                    fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(removeBtn);
+                    fileList.appendChild(fileItem);
+                });
+            } else {
+                filePreview.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Helper function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
 });
 </script>
