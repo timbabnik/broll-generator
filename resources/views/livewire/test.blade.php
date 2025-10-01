@@ -884,32 +884,35 @@ Scene 2: Close-up of hands typing
         <!-- Modal Body -->
         <div class="p-8">
             <form class="space-y-8">
-                <!-- Tags and AI Processing Options -->
+                <!-- Description and AI Processing Options -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Manual Description -->
                     <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
                         <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                            <i class="fas fa-tag text-blue-500 mr-2"></i>
-                            Tags (Optional)
+                            <i class="fas fa-edit text-blue-500 mr-2"></i>
+                            Manual Description
                         </label>
-                        <input type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm" placeholder="e.g., business, nature, technology">
+                        <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm resize-none" rows="3" placeholder="Write a description for your media..."></textarea>
+                        <p class="text-xs text-gray-500 mt-2">Describe your media manually or leave empty to use AI</p>
                     </div>
+                    
+                    <!-- AI Auto-Generate -->
                     <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-                        <h3 class="text-sm font-semibold text-gray-800 mb-4 flex items-center">
+                        <label class="block text-sm font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-magic text-green-500 mr-2"></i>
-                            AI Processing
-                        </h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-3 text-green-500" checked>
-                                <span class="text-sm text-gray-700">Auto-generate descriptions using AI</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-3 text-green-500" checked>
-                                <span class="text-sm text-gray-700">Extract key frames for thumbnails</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-3 text-green-500">
-                                <span class="text-sm text-gray-700">Generate searchable tags automatically</span>
+                            AI Auto-Generate
+                        </label>
+                        <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-green-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-robot text-green-500 mr-3"></i>
+                                <div>
+                                    <span class="text-sm font-medium text-gray-800">Auto-generate descriptions</span>
+                                    <p class="text-xs text-gray-500">Let AI create descriptions for your media</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                             </label>
                         </div>
                     </div>

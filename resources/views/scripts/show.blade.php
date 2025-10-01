@@ -93,9 +93,47 @@
                                 @if($sentence->shotlist)
                                     <div class="mb-4">
                                         <h5 class="font-medium text-gray-800 mb-2">Shotlist:</h5>
-                                        <div class="bg-gray-50 p-3 rounded text-sm text-gray-600">
-                                            {{ $sentence->shotlist }}
-                                        </div>
+                                        @php
+                                            $shotlistData = json_decode($sentence->shotlist, true);
+                                        @endphp
+                                        @if($shotlistData && is_array($shotlistData) && count($shotlistData) > 0)
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>
+                                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Second</th>
+                                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>
+                                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enhanced Image Prompt</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-200">
+                                                        @foreach($shotlistData as $shot)
+                                                            <tr class="hover:bg-gray-50">
+                                                                <td class="px-4 py-3 text-sm text-gray-700 font-medium">{{ $shot['script'] ?? 'N/A' }}</td>
+                                                                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $shot['second'] ?? 'N/A' }}</td>
+                                                                <td class="px-4 py-3 text-sm text-gray-600">{{ $shot['shot'] ?? 'N/A' }}</td>
+                                                                <td class="px-4 py-3 text-sm text-gray-600">
+                                                                    @if(isset($shot['image_prompt']))
+                                                                        <div class="bg-blue-50 border border-blue-200 rounded p-2">
+                                                                            <span class="text-xs text-blue-600 font-medium">Enhanced:</span>
+                                                                            <p class="text-xs text-gray-700 mt-1">{{ $shot['image_prompt'] }}</p>
+                                                                        </div>
+                                                                    @else
+                                                                        <span class="text-gray-400">Not enhanced</span>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                <p class="text-sm text-yellow-800">Raw shotlist data:</p>
+                                                <pre class="text-xs text-gray-600 mt-2 whitespace-pre-wrap">{{ $sentence->shotlist }}</pre>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
 

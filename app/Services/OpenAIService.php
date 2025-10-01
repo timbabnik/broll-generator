@@ -48,23 +48,37 @@ class OpenAIService
      */
     public function generateShotlist(string $sentence): array
     {
-        $prompt = "Make a shot-list for every second of this script:\"" . $sentence . "\"\n\nFormat your response as a JSON array like this:\n\n[\n  {\"second\": 0, \"script\": \"Start of the script\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  {\"second\": 1, \"script\": \"Next second\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  ...\n]";
-
+        $prompt = "Break down this sentence into logical parts (maximum 3 words) and create a shot for each part: $sentence\n\nFormat your response as a JSON array like this:\n\n[\n  {\"second\": 0, \"script\": \"First part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  {\"second\": 1, \"script\": \"Second part of the sentence\", \"shot\": \"Visual description (shot) in 25 words or more\"},\n  ...\n]\n\nBreak the sentence into meaningful segments, not by time.";
+        
         $response = $this->makeRequest($prompt);
         
         if (!$response) {
             throw new \Exception('Failed to generate shotlist');
         }
 
+        // Clean up the response - remove markdown code blocks if present
+        $cleanResponse = $response;
+        if (strpos($response, '```json') !== false) {
+            $cleanResponse = preg_replace('/```json\s*/', '', $response);
+            $cleanResponse = preg_replace('/\s*```/', '', $cleanResponse);
+        }
+        if (strpos($cleanResponse, '```') !== false) {
+            $cleanResponse = preg_replace('/```\s*/', '', $cleanResponse);
+        }
+
         // Try to decode JSON response
-        $decoded = json_decode($response, true);
+        $decoded = json_decode($cleanResponse, true);
         
         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
             return $decoded;
         }
         
-        // If not JSON, return the raw response as a single item
-        return [['second' => 0, 'script' => $sentence, 'shot' => $response]];
+        // If not JSON, create a simple shotlist manually
+        return [
+            ['second' => 0, 'script' => $sentence, 'shot' => 'Wide establishing shot of the scene'],
+            ['second' => 1, 'script' => $sentence, 'shot' => 'Medium shot focusing on the main subject'],
+            ['second' => 2, 'script' => $sentence, 'shot' => 'Close-up detail shot with emphasis on key elements']
+        ];
     }
 
     /**

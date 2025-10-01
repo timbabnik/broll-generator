@@ -53,6 +53,9 @@ class ProcessScriptJob implements ShouldQueue
                 GenerateShotlistJob::dispatch($sentence);
             });
 
+            // Update script status to processing (will be completed when all shotlists are done)
+            $this->script->update(['status' => 'processing']);
+
             Log::info('Script processed successfully', [
                 'script_id' => $this->script->id,
                 'sentences_count' => count($sentences)

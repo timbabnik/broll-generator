@@ -31,13 +31,35 @@ class GenerateShotlistJob implements ShouldQueue
                 throw new \Exception('Failed to generate shotlist');
             }
 
+            // Enhance each shot with image prompts
+            $enhancedShots = [];
+            foreach ($shotlist as $shot) {
+                try {
+                    $enhancedImagePrompt = $openAIService->enhanceToImagePrompt($shot['shot']);
+                    $enhancedShots[] = [
+                        'second' => $shot['second'],
+                        'script' => $shot['script'],
+                        'shot' => $shot['shot'],
+                        'image_prompt' => $enhancedImagePrompt
+                    ];
+                } catch (\Exception $e) {
+                    // If enhancement fails, keep the original shot
+                    $enhancedShots[] = [
+                        'second' => $shot['second'],
+                        'script' => $shot['script'],
+                        'shot' => $shot['shot'],
+                        'image_prompt' => $shot['shot'] // Fallback to original
+                    ];
+                }
+            }
+
             $this->sentence->update([
-                'shotlist' => json_encode($shotlist),
+                'shotlist' => json_encode($enhancedShots),
                 'status' => 'completed'
             ]);
 
-            // Dispatch prompt enhancement for this sentence
-            EnhancePromptsJob::dispatch($this->sentence);
+            // Check if all sentences in the script are completed
+            $this->checkScriptCompletion();
 
             Log::info('Shotlist generated successfully', [
                 'sentence_id' => $this->sentence->id
@@ -53,6 +75,22 @@ class GenerateShotlistJob implements ShouldQueue
             ]);
 
             throw $e;
+        }
+    }
+
+    /**
+     * Check if all sentences in the script are completed
+     */
+    private function checkScriptCompletion(): void
+    {
+        $script = $this->sentence->script;
+        $totalSentences = $script->sentences()->count();
+        $completedSentences = $script->sentences()
+            ->where('status', 'completed')
+            ->count();
+
+        if ($completedSentences >= $totalSentences) {
+            $script->update(['status' => 'completed']);
         }
     }
 }
