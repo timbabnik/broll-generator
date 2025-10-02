@@ -119,20 +119,21 @@ class OpenAIService
     private function makeRequest(string $prompt): ?string
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/chat/completions', [
-                'model' => 'gpt-4o-mini',
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => $prompt
-                    ]
-                ],
-                'max_tokens' => 2000,
-                'temperature' => 0.7,
-            ]);
+            $response = Http::timeout(60) // 60 seconds timeout
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ])->post($this->baseUrl . '/chat/completions', [
+                    'model' => 'gpt-4o-mini',
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => $prompt
+                        ]
+                    ],
+                    'max_tokens' => 2000,
+                    'temperature' => 0.7,
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -149,7 +150,8 @@ class OpenAIService
         } catch (\Exception $e) {
             Log::error('OpenAI API exception', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'prompt_length' => strlen($prompt)
             ]);
 
             return null;

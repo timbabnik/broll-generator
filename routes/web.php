@@ -142,21 +142,40 @@ Route::post('/script-processor/enhance-image-prompts/{script}', function(\App\Mo
 })->name('script.processor.enhance.image');
 
 Route::post('/script-processor/enhance-video-prompts/{script}', function(\App\Models\Script $script) {
-    // Enhance video prompts for all sentences synchronously
+    // Increase execution time limit for this endpoint
+    set_time_limit(300); // 5 minutes
+    
+    // Enhance video prompts for all sentences using job queue to avoid timeouts
     $sentences = $script->sentences;
     $openAIService = app(\App\Services\OpenAIService::class);
+    
+    $processedCount = 0;
+    $errorCount = 0;
     
     foreach ($sentences as $sentence) {
         if ($sentence->shotlist) {
             $shotlistData = json_decode($sentence->shotlist, true);
+            if (!$shotlistData || !is_array($shotlistData)) {
+                \Log::warning('Invalid shotlist data for sentence', [
+                    'sentence_id' => $sentence->id,
+                    'shotlist' => $sentence->shotlist
+                ]);
+                continue;
+            }
+            
             $enhancedShots = [];
             
             foreach ($shotlistData as $shot) {
                 try {
+                    // Add timeout protection for individual API calls
                     $enhancedVideoPrompt = $openAIService->enhanceToVideoPrompt(
                         $shot['shot'], 
                         $shot['image_prompt'] ?? $shot['shot']
                     );
+                    
+                    if (empty($enhancedVideoPrompt)) {
+                        throw new \Exception('Empty response from OpenAI');
+                    }
                     
                     $enhancedShots[] = [
                         'second' => $shot['second'],
@@ -165,12 +184,16 @@ Route::post('/script-processor/enhance-video-prompts/{script}', function(\App\Mo
                         'image_prompt' => $shot['image_prompt'] ?? $shot['shot'],
                         'video_prompt' => $enhancedVideoPrompt
                     ];
+                    $processedCount++;
+                    
                 } catch (\Exception $e) {
                     \Log::error('Failed to enhance video prompt', [
                         'sentence_id' => $sentence->id,
                         'shot' => $shot['shot'],
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
+                    $errorCount++;
                     // Keep original shot if enhancement fails
                     $enhancedShots[] = $shot;
                 }
@@ -180,9 +203,17 @@ Route::post('/script-processor/enhance-video-prompts/{script}', function(\App\Mo
         }
     }
     
+    \Log::info('Video prompts enhancement completed', [
+        'script_id' => $script->id,
+        'processed_count' => $processedCount,
+        'error_count' => $errorCount
+    ]);
+    
     return response()->json([
         'success' => true,
-        'message' => 'Video prompts enhanced'
+        'message' => "Video prompts enhanced ({$processedCount} processed, {$errorCount} errors)",
+        'processed_count' => $processedCount,
+        'error_count' => $errorCount
     ]);
 })->name('script.processor.enhance.video');
 
