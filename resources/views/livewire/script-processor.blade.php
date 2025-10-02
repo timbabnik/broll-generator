@@ -88,7 +88,8 @@
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Second</th>
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>
-                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enhanced Image Prompt</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video Prompt</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-200">
@@ -100,8 +101,18 @@
                                                         <td class="px-4 py-3 text-sm text-gray-600">
                                                             @if(isset($shot['image_prompt']))
                                                                 <div class="bg-blue-50 border border-blue-200 rounded p-2">
-                                                                    <span class="text-xs text-blue-600 font-medium">Enhanced:</span>
+                                                                    <span class="text-xs text-blue-600 font-medium">Image:</span>
                                                                     <p class="text-xs text-gray-700 mt-1">{{ $shot['image_prompt'] }}</p>
+                                                                </div>
+                                                            @else
+                                                                <span class="text-gray-400">Not enhanced</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-4 py-3 text-sm text-gray-600">
+                                                            @if(isset($shot['video_prompt']))
+                                                                <div class="bg-green-50 border border-green-200 rounded p-2">
+                                                                    <span class="text-xs text-green-600 font-medium">Video:</span>
+                                                                    <p class="text-xs text-gray-700 mt-1">{{ $shot['video_prompt'] }}</p>
                                                                 </div>
                                                             @else
                                                                 <span class="text-gray-400">Not enhanced</span>

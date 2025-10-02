@@ -31,16 +31,19 @@ class GenerateShotlistJob implements ShouldQueue
                 throw new \Exception('Failed to generate shotlist');
             }
 
-            // Enhance each shot with image prompts
+            // Enhance each shot with image and video prompts
             $enhancedShots = [];
             foreach ($shotlist as $shot) {
                 try {
                     $enhancedImagePrompt = $openAIService->enhanceToImagePrompt($shot['shot']);
+                    $enhancedVideoPrompt = $openAIService->enhanceToVideoPrompt($shot['shot'], $enhancedImagePrompt);
+                    
                     $enhancedShots[] = [
                         'second' => $shot['second'],
                         'script' => $shot['script'],
                         'shot' => $shot['shot'],
-                        'image_prompt' => $enhancedImagePrompt
+                        'image_prompt' => $enhancedImagePrompt,
+                        'video_prompt' => $enhancedVideoPrompt
                     ];
                 } catch (\Exception $e) {
                     // If enhancement fails, keep the original shot
@@ -48,7 +51,8 @@ class GenerateShotlistJob implements ShouldQueue
                         'second' => $shot['second'],
                         'script' => $shot['script'],
                         'shot' => $shot['shot'],
-                        'image_prompt' => $shot['shot'] // Fallback to original
+                        'image_prompt' => $shot['shot'], // Fallback to original
+                        'video_prompt' => $shot['shot']  // Fallback to original
                     ];
                 }
             }
