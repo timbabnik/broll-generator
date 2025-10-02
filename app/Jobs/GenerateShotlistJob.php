@@ -33,41 +33,22 @@ class GenerateShotlistJob implements ShouldQueue
                 throw new \Exception('Failed to generate shotlist');
             }
 
-            // Enhance each shot with image and video prompts
-            $enhancedShots = [];
+            // Store basic shotlist without enhancements - let user control enhancements
+            $basicShots = [];
             foreach ($shotlist as $shot) {
-                try {
-                    $enhancedImagePrompt = $openAIService->enhanceToImagePrompt($shot['shot']);
-                    $enhancedVideoPrompt = $openAIService->enhanceToVideoPrompt($shot['shot'], $enhancedImagePrompt);
-                    
-                    $enhancedShots[] = [
-                        'second' => $shot['second'],
-                        'script' => $shot['script'],
-                        'shot' => $shot['shot'],
-                        'image_prompt' => $enhancedImagePrompt,
-                        'video_prompt' => $enhancedVideoPrompt
-                    ];
-                } catch (\Exception $e) {
-                    // If enhancement fails, keep the original shot
-                    $enhancedShots[] = [
-                        'second' => $shot['second'],
-                        'script' => $shot['script'],
-                        'shot' => $shot['shot'],
-                        'image_prompt' => $shot['shot'], // Fallback to original
-                        'video_prompt' => $shot['shot']  // Fallback to original
-                    ];
-                }
+                $basicShots[] = [
+                    'second' => $shot['second'],
+                    'script' => $shot['script'],
+                    'shot' => $shot['shot']
+                ];
             }
 
             $this->sentence->update([
-                'shotlist' => json_encode($enhancedShots),
+                'shotlist' => json_encode($basicShots),
                 'status' => 'completed'
             ]);
 
-            // Dispatch image generation for each shot
-            foreach ($enhancedShots as $index => $shot) {
-                GenerateShotImageJob::dispatch($this->sentence, $shot, $index);
-            }
+            // DON'T dispatch image generation - let user control it with Next button
 
             // Check if all sentences in the script are completed
             $this->checkScriptCompletion();

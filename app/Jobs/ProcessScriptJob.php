@@ -48,10 +48,11 @@ class ProcessScriptJob implements ShouldQueue
                 ]);
             }
 
-            // Dispatch shotlist generation for each sentence
-            $this->script->sentences()->each(function ($sentence) {
-                GenerateShotlistJob::dispatch($sentence);
-            });
+            // DON'T dispatch shotlist generation - let the user control it with the Next button
+            Log::info('ProcessScriptJob completed - only split sentences, no other jobs dispatched', [
+                'script_id' => $this->script->id,
+                'sentences_count' => count($sentences)
+            ]);
 
             // Update script status to processing (will be completed when all shotlists are done)
             $this->script->update(['status' => 'processing']);

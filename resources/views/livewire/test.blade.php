@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Donezo - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -672,6 +673,1134 @@
             document.getElementById('importMediaModal').classList.add('hidden');
         }
 
+        let currentScriptId = null;
+        let currentStep = 0;
+        const steps = ['sentences', 'shotlist', 'prompts', 'images'];
+        
+        async function submitScript() {
+            const scriptText = document.getElementById('scriptTextarea').value;
+            
+            if (!scriptText.trim()) {
+                alert('Please enter a script/content before generating b-roll.');
+                return;
+            }
+            
+            // Start the automatic flow
+            startAutomaticFlow(scriptText);
+        }
+        
+        async function startAutomaticFlow(scriptText) {
+            showStepLoading('Generating B-Roll', 'Processing your script automatically...');
+            
+            try {
+                // Step 1: Split into sentences
+                const formData = new FormData();
+                formData.append('script', scriptText);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                
+                const response = await fetch('/script-processor', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.script_id) {
+                    currentScriptId = data.script_id;
+                    
+                    // Wait for sentences to be created
+                    await waitForSentences();
+                    
+                    // Step 2: Generate shotlists
+                    await generateShotlists();
+                    
+                    // Step 3: Enhance image prompts
+                    await enhanceImagePrompts();
+                    
+                    // Step 4: Enhance video prompts
+                    await enhanceVideoPrompts();
+                    
+                    // Show final results
+                    showFinalResults();
+                } else {
+                    alert('Error processing script. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing script. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function waitForSentences() {
+            return new Promise((resolve, reject) => {
+                const checkSentences = async () => {
+                    try {
+                        const response = await fetch(`/debug-script/${currentScriptId}`);
+                        const data = await response.json();
+                        
+                        if (data.sentences_count > 0) {
+                            resolve();
+                        } else {
+                            setTimeout(checkSentences, 1000);
+                        }
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                checkSentences();
+            });
+        }
+        
+        async function generateShotlists() {
+            const response = await fetch(`/script-processor/generate-shotlists/${currentScriptId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            
+            // Wait for shotlists to be generated
+            return new Promise((resolve) => {
+                const checkShotlists = async () => {
+                    try {
+                        const response = await fetch(`/debug-script/${currentScriptId}`);
+                        const data = await response.json();
+                        
+                        const allHaveShotlists = data.sentences.every(sentence => sentence.shotlist);
+                        if (allHaveShotlists) {
+                            resolve();
+                        } else {
+                            setTimeout(checkShotlists, 2000);
+                        }
+                    } catch (error) {
+                        resolve(); // Continue even if check fails
+                    }
+                };
+                setTimeout(checkShotlists, 2000);
+            });
+        }
+        
+        async function enhanceImagePrompts() {
+            const response = await fetch(`/script-processor/enhance-image-prompts/${currentScriptId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            
+            // Wait a bit for processing
+            return new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        
+        async function enhanceVideoPrompts() {
+            const response = await fetch(`/script-processor/enhance-video-prompts/${currentScriptId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            
+            // Wait a bit for processing
+            return new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        
+        async function showFinalResults() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                let html = `
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">✅ B-Roll Generation Complete!</h3>
+                        <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Form</span>
+                        </button>
+                    </div>
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-green-800 font-medium">Successfully processed ${data.sentences_count} sentences with enhanced prompts!</p>
+                    </div>
+                `;
+                
+                data.sentences.forEach((sentence, index) => {
+                    if (sentence.shotlist) {
+                        const shotlistData = JSON.parse(sentence.shotlist);
+                        html += `
+                            <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Sentence ${index + 1}: ${sentence.content.substring(0, 50)}...</h4>
+                                <div class="space-y-2">
+                        `;
+                        
+                        shotlistData.forEach((shot, shotIndex) => {
+                            html += `
+                                <div class="p-3 bg-blue-50 rounded border border-blue-200">
+                                    <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
+                                    <div class="text-sm text-gray-600 mt-1">Original: ${shot.shot}</div>
+                                    <div class="text-sm text-blue-600 mt-1 font-medium">Enhanced Image: ${shot.image_prompt || 'Not enhanced'}</div>
+                                    <div class="text-sm text-green-600 mt-1 font-medium">Enhanced Video: ${shot.video_prompt || 'Not enhanced'}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += `
+                    <div class="mt-6 text-center">
+                        <button onclick="generateImages()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                            Generate Images →
+                        </button>
+                    </div>
+                `;
+                
+                const modalContent = document.querySelector('#addProjectModal .bg-white');
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error showing results:', error);
+                alert('Error loading results. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function generateImages() {
+            showStepLoading('Generating Images', 'Creating images for all shots...');
+            
+            try {
+                const response = await fetch(`/script-processor/generate-images/${currentScriptId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Show results immediately, just like we do with prompts
+                    showImageResultsImmediately();
+                } else {
+                    alert('Error generating images. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating images. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function showImageResultsImmediately() {
+            try {
+                // Fetch current script data with assets
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                if (data.sentences) {
+                    showImageResults({ sentences: data.sentences });
+                    // Start polling to update images automatically
+                    console.log('Starting image polling...');
+                    startImagePolling();
+                } else {
+                    alert('Error loading script data. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error loading script data:', error);
+                alert('Error loading script data. Please try again.');
+                showFormState();
+            }
+        }
+        
+        let imagePollingInterval = null;
+        
+        function startImagePolling() {
+            // Clear any existing polling
+            if (imagePollingInterval) {
+                clearInterval(imagePollingInterval);
+            }
+            
+            console.log('Image polling started, will check every 3 seconds...');
+            
+            // Poll every 3 seconds to update images
+            imagePollingInterval = setInterval(async () => {
+                console.log('Polling for image updates...');
+                try {
+                    const response = await fetch(`/debug-script/${currentScriptId}`);
+                    const data = await response.json();
+                    
+                    console.log('Polling response:', data);
+                    console.log('First sentence structure:', data.sentences?.[0]);
+                    console.log('First sentence assets:', data.sentences?.[0]?.assets);
+                    
+                    if (data.sentences) {
+                        updateImagesInTable(data.sentences);
+                    }
+                } catch (error) {
+                    console.error('Error polling for images:', error);
+                }
+            }, 3000);
+        }
+        
+        function updateImagesInTable(sentences) {
+            console.log('updateImagesInTable called with:', sentences);
+            
+            // Update each sentence's images in the table
+            sentences.forEach((sentence, sentenceIndex) => {
+                console.log(`Processing sentence ${sentenceIndex}:`, sentence);
+                
+                if (sentence.shotlist) {
+                    const shotlistData = JSON.parse(sentence.shotlist);
+                    
+                    shotlistData.forEach((shot, shotIndex) => {
+                        const imageAsset = sentence.assets ? sentence.assets.find(asset => 
+                            asset.type === 'image' && 
+                            asset.metadata && 
+                            asset.metadata.shot_index === shotIndex
+                        ) : null;
+                        
+                        console.log(`Shot ${shotIndex} image asset:`, imageAsset);
+                        console.log(`All assets for sentence ${sentenceIndex}:`, sentence.assets);
+                        if (sentence.assets && sentence.assets.length > 0) {
+                            console.log(`First asset structure:`, sentence.assets[0]);
+                            console.log(`First asset metadata:`, sentence.assets[0].metadata);
+                            console.log(`First asset shot_index:`, sentence.assets[0].metadata?.shot_index);
+                        }
+                        
+                        // Find the image cell in the table and update it
+                        const imageCell = document.querySelector(`[data-sentence="${sentenceIndex}"][data-shot="${shotIndex}"] .image-cell`);
+                        console.log(`Image cell for sentence ${sentenceIndex}, shot ${shotIndex}:`, imageCell);
+                        
+                        if (imageCell) {
+                            if (imageAsset && imageAsset.url) {
+                                console.log(`Updating image for sentence ${sentenceIndex}, shot ${shotIndex} with URL: ${imageAsset.url}`);
+                                imageCell.innerHTML = `<img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded border">`;
+                            } else {
+                                console.log(`No image asset found for sentence ${sentenceIndex}, shot ${shotIndex}`);
+                            }
+                        } else {
+                            console.log(`Image cell not found for sentence ${sentenceIndex}, shot ${shotIndex}`);
+                        }
+                    });
+                }
+            });
+        }
+        
+        let retryCount = 0;
+        const maxRetries = 10;
+        let pollCount = 0;
+        const maxPolls = 30; // 30 polls = 1 minute of polling
+        
+        async function pollForImageCompletion() {
+            pollCount++;
+            console.log(`Polling attempt ${pollCount}/${maxPolls}`);
+            
+            try {
+                const response = await fetch(`/script-processor/status/${currentScriptId}`);
+                
+                if (!response.ok) {
+                    console.error('HTTP error:', response.status, response.statusText);
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        // Retry after a delay instead of showing error immediately
+                        setTimeout(() => pollForImageCompletion(), 5000);
+                        return;
+                    } else {
+                        alert('Error checking image generation status. Please try again.');
+                        showFormState();
+                        return;
+                    }
+                }
+                
+                const data = await response.json();
+                console.log('Status check response:', data);
+                console.log('Sentences with assets:', data.sentences?.map(s => ({
+                    id: s.id,
+                    assets_count: s.assets?.length || 0,
+                    image_assets: s.assets?.filter(a => a.type === 'image').length || 0
+                })));
+                
+                if (data.success) {
+                    // Show results if we have any images, regardless of completion status
+                    const hasImages = data.sentences && data.sentences.some(sentence => 
+                        sentence.assets && sentence.assets.some(asset => asset.type === 'image')
+                    );
+                    
+                    console.log('Has images:', hasImages, 'Completed:', data.completed);
+                    
+                    if (hasImages || data.completed || pollCount >= maxPolls) {
+                        console.log('Showing image results...');
+                        showImageResults(data);
+                    } else {
+                        console.log('Still processing...', data.message || 'No message');
+                        setTimeout(() => pollForImageCompletion(), 2000);
+                    }
+                } else {
+                    console.log('Still processing...', data.message || 'No message');
+                    setTimeout(() => pollForImageCompletion(), 2000);
+                }
+            } catch (error) {
+                console.error('Error polling image completion:', error);
+                retryCount++;
+                if (retryCount < maxRetries) {
+                    // Instead of showing error immediately, retry a few times
+                    console.log('Retrying status check in 5 seconds...');
+                    setTimeout(() => pollForImageCompletion(), 5000);
+                } else {
+                    alert('Error checking image generation status. Please try again.');
+                    showFormState();
+                }
+            }
+        }
+        
+        function showImageResults(data) {
+            let html = `
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">📸 Generated Images</h3>
+                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+            `;
+            
+            data.sentences.forEach((sentence, index) => {
+                if (sentence.shotlist) {
+                    const shotlistData = JSON.parse(sentence.shotlist);
+                    
+                    html += `
+                        <div class="mb-8">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Sentence ${index + 1}: ${sentence.content}</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated Image</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                    `;
+                    
+                    shotlistData.forEach((shot, shotIndex) => {
+                        const imageAsset = sentence.assets ? sentence.assets.find(asset => 
+                            asset.type === 'image' && 
+                            asset.metadata && 
+                            asset.metadata.shot_index === shotIndex
+                        ) : null;
+                        
+                        html += `
+                            <tr class="hover:bg-gray-50 transition-colors" data-sentence="${index}" data-shot="${shotIndex}">
+                                <td class="px-4 py-3 text-sm text-gray-700 font-medium">${shot.script || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">${shot.shot || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">
+                                    ${shot.image_prompt ? `
+                                        <div class="bg-blue-50 border border-blue-200 rounded p-3 shadow-sm">
+                                            <span class="text-xs text-blue-600 font-medium">🎨 Image:</span>
+                                            <p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.image_prompt}</p>
+                                        </div>
+                                    ` : `<span class="text-gray-400">Not enhanced</span>`}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600 image-cell">
+                                    ${imageAsset ? `
+                                        <img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded border">
+                                    ` : `
+                                        <div class="w-24 h-24 bg-gray-100 border border-gray-200 rounded flex items-center justify-center">
+                                            <span class="text-xs text-gray-400">Generating...</span>
+                                        </div>
+                                    `}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `
+                <div class="mt-6 text-center">
+                    <button onclick="showFormState()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        Create New Project →
+                    </button>
+                </div>
+            `;
+            
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = html;
+        }
+        
+        async function showStep1(scriptText) {
+            showStepLoading('Step 1: Splitting Script into Sentences', 'Breaking down your script into individual sentences...');
+            
+            try {
+                const formData = new FormData();
+                formData.append('script', scriptText);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                
+                const response = await fetch('/script-processor', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.script_id) {
+                    currentScriptId = data.script_id;
+                    // Wait for sentences to be created
+                    pollForSentences();
+                } else {
+                    alert('Error processing script. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing script. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function pollForSentences() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                if (data.sentences_count > 0) {
+                    showStep1Results(data);
+                } else {
+                    setTimeout(() => pollForSentences(), 1000);
+                }
+            } catch (error) {
+                console.error('Error polling sentences:', error);
+                alert('Error checking sentences. Please try again.');
+                showFormState();
+            }
+        }
+        
+        function showStep1Results(data) {
+            let html = `
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">✅ Step 1 Complete: Sentences Split</h3>
+                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800 font-medium">Successfully split script into ${data.sentences_count} sentences!</p>
+                </div>
+            `;
+            
+            data.sentences.forEach((sentence, index) => {
+                html += `
+                    <div class="mb-4 p-4 bg-white border border-gray-200 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3 mt-1">${index + 1}</div>
+                            <div class="flex-1">
+                                <p class="text-gray-700">${sentence.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="mt-6 text-center">
+                    <button onclick="startStep2()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        Next: Generate Shotlists →
+                    </button>
+                </div>
+            `;
+            
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = html;
+        }
+        
+        async function startStep2() {
+            showStepLoading('Step 2: Generating Shotlists', 'Creating detailed shotlists for each sentence...');
+            
+            try {
+                const response = await fetch(`/script-processor/generate-shotlists/${currentScriptId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    pollForShotlists();
+                } else {
+                    alert('Error starting shotlist generation. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error starting shotlist generation. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function pollForShotlists() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                const sentencesWithShotlists = data.sentences.filter(s => s.shotlist);
+                
+                if (sentencesWithShotlists.length === data.sentences.length) {
+                    showStep2Results(data);
+                } else {
+                    setTimeout(() => pollForShotlists(), 2000);
+                }
+            } catch (error) {
+                console.error('Error polling shotlists:', error);
+                alert('Error checking shotlists. Please try again.');
+                showFormState();
+            }
+        }
+        
+        function showStep2Results(data) {
+            let html = `
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">✅ Step 2 Complete: Shotlists Generated</h3>
+                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800 font-medium">Successfully generated shotlists for all sentences!</p>
+                </div>
+            `;
+            
+            data.sentences.forEach((sentence, index) => {
+                if (sentence.shotlist) {
+                    const shotlistData = JSON.parse(sentence.shotlist);
+                    html += `
+                        <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 mb-3">Sentence ${index + 1}: ${sentence.content.substring(0, 50)}...</h4>
+                            <div class="space-y-2">
+                    `;
+                    
+                    shotlistData.forEach((shot, shotIndex) => {
+                        html += `
+                            <div class="p-3 bg-gray-50 rounded border">
+                                <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
+                                <div class="text-sm text-gray-600 mt-1">${shot.shot}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `
+                <div class="mt-6 text-center">
+                    <button onclick="startStep3()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        Next: Enhance Image Prompts →
+                    </button>
+                </div>
+            `;
+            
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = html;
+        }
+        
+        async function startStep3() {
+            showStepLoading('Step 3: Enhancing Image Prompts', 'Enhancing image prompts using AI...');
+            
+            try {
+                const response = await fetch(`/script-processor/enhance-image-prompts/${currentScriptId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStep3Results();
+                } else {
+                    alert('Error enhancing image prompts. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error enhancing image prompts. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function showStep3Results() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                let html = `
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">✅ Step 3 Complete: Image Prompts Enhanced</h3>
+                        <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Form</span>
+                        </button>
+                    </div>
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-green-800 font-medium">Successfully enhanced image prompts for all shots!</p>
+                    </div>
+                `;
+                
+                data.sentences.forEach((sentence, index) => {
+                    if (sentence.shotlist) {
+                        const shotlistData = JSON.parse(sentence.shotlist);
+                        html += `
+                            <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Sentence ${index + 1}: ${sentence.content.substring(0, 50)}...</h4>
+                                <div class="space-y-2">
+                        `;
+                        
+                        shotlistData.forEach((shot, shotIndex) => {
+                            html += `
+                                <div class="p-3 bg-blue-50 rounded border border-blue-200">
+                                    <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
+                                    <div class="text-sm text-gray-600 mt-1">Original: ${shot.shot}</div>
+                                    <div class="text-sm text-blue-600 mt-1 font-medium">Enhanced: ${shot.image_prompt || 'Not enhanced'}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += `
+                    <div class="mt-6 text-center">
+                        <button onclick="startStep4()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                            Next: Enhance Video Prompts →
+                        </button>
+                    </div>
+                `;
+                
+                const modalContent = document.querySelector('#addProjectModal .bg-white');
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading results. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function startStep4() {
+            showStepLoading('Step 4: Enhancing Video Prompts', 'Enhancing video prompts using AI...');
+            
+            try {
+                const response = await fetch(`/script-processor/enhance-video-prompts/${currentScriptId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStep4Results();
+                } else {
+                    alert('Error enhancing video prompts. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error enhancing video prompts. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function showStep4Results() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                let html = `
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">✅ Step 4 Complete: Video Prompts Enhanced</h3>
+                        <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Form</span>
+                        </button>
+                    </div>
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-green-800 font-medium">Successfully enhanced video prompts for all shots!</p>
+                    </div>
+                `;
+                
+                data.sentences.forEach((sentence, index) => {
+                    if (sentence.shotlist) {
+                        const shotlistData = JSON.parse(sentence.shotlist);
+                        html += `
+                            <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Sentence ${index + 1}: ${sentence.content.substring(0, 50)}...</h4>
+                                <div class="space-y-2">
+                        `;
+                        
+                        shotlistData.forEach((shot, shotIndex) => {
+                            html += `
+                                <div class="p-3 bg-green-50 rounded border border-green-200">
+                                    <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
+                                    <div class="text-sm text-gray-600 mt-1">Original: ${shot.shot}</div>
+                                    <div class="text-sm text-green-600 mt-1 font-medium">Enhanced: ${shot.video_prompt || 'Not enhanced'}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += `
+                    <div class="mt-6 text-center">
+                        <button onclick="startStep5()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                            Next: Generate Images →
+                        </button>
+                    </div>
+                `;
+                
+                const modalContent = document.querySelector('#addProjectModal .bg-white');
+                modalContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading results. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function startStep5() {
+            showStepLoading('Step 5: Generating Images', 'Creating images for each shot using Seedream...');
+            
+            try {
+                const response = await fetch(`/script-processor/generate-images/${currentScriptId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    pollForImages();
+                } else {
+                    alert('Error starting image generation. Please try again.');
+                    showFormState();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error starting image generation. Please try again.');
+                showFormState();
+            }
+        }
+        
+        async function pollForImages() {
+            try {
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                const totalImages = data.sentences.reduce((sum, sentence) => sum + sentence.image_assets, 0);
+                const totalExpected = data.sentences.reduce((sum, sentence) => {
+                    if (sentence.shotlist) {
+                        const shotlistData = JSON.parse(sentence.shotlist);
+                        return sum + shotlistData.length;
+                    }
+                    return sum;
+                }, 0);
+                
+                if (totalImages >= totalExpected && totalExpected > 0) {
+                    showStep3Results(data);
+                } else {
+                    // Update progress
+                    updateStepProgress(`Generating images... ${totalImages}/${totalExpected} completed`);
+                    setTimeout(() => pollForImages(), 2000);
+                }
+            } catch (error) {
+                console.error('Error polling images:', error);
+                alert('Error checking images. Please try again.');
+                showFormState();
+            }
+        }
+        
+        function showStep3Results(data) {
+            let html = `
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">🎉 All Steps Complete!</h3>
+                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800 font-medium">Successfully generated all images and completed the process!</p>
+                </div>
+            `;
+            
+            // Show final results with all data
+            data.sentences.forEach((sentence, index) => {
+                if (sentence.shotlist) {
+                    const shotlistData = JSON.parse(sentence.shotlist);
+                    html += `
+                        <div class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">${index + 1}</div>
+                                <h4 class="text-lg font-semibold text-gray-800">Sentence ${index + 1}</h4>
+                            </div>
+                            <p class="text-gray-700 mb-4 p-4 bg-white rounded-lg border border-blue-100 shadow-sm">${sentence.content}</p>
+                    `;
+                    
+                    if (shotlistData.length > 0) {
+                        html += `<div class="overflow-x-auto">`;
+                        html += `<table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">`;
+                        html += `<thead class="bg-gradient-to-r from-gray-50 to-gray-100">`;
+                        html += `<tr>`;
+                        html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>`;
+                        html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>`;
+                        html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>`;
+                        html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video Prompt</th>`;
+                        html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated Image</th>`;
+                        html += `</tr>`;
+                        html += `</thead>`;
+                        html += `<tbody class="divide-y divide-gray-200">`;
+                        
+                        shotlistData.forEach((shot, shotIndex) => {
+                            const generatedImage = sentence.assets.find(asset => 
+                                asset.type === 'image' && 
+                                asset.metadata && 
+                                asset.metadata.shot_index === shotIndex
+                            );
+                            
+                            html += `<tr class="hover:bg-gray-50 transition-colors">`;
+                            html += `<td class="px-4 py-3 text-sm text-gray-700 font-medium">${shot.script || 'N/A'}</td>`;
+                            html += `<td class="px-4 py-3 text-sm text-gray-600">${shot.shot || 'N/A'}</td>`;
+                            html += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                            if (shot.image_prompt) {
+                                html += `<div class="bg-blue-50 border border-blue-200 rounded p-3 shadow-sm">`;
+                                html += `<span class="text-xs text-blue-600 font-medium">🎨 Image:</span>`;
+                                html += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.image_prompt}</p>`;
+                                html += `</div>`;
+                            } else {
+                                html += `<span class="text-gray-400">Not enhanced</span>`;
+                            }
+                            html += `</td>`;
+                            html += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                            if (shot.video_prompt) {
+                                html += `<div class="bg-green-50 border border-green-200 rounded p-3 shadow-sm">`;
+                                html += `<span class="text-xs text-green-600 font-medium">🎥 Video:</span>`;
+                                html += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.video_prompt}</p>`;
+                                html += `</div>`;
+                            } else {
+                                html += `<span class="text-gray-400">Not enhanced</span>`;
+                            }
+                            html += `</td>`;
+                            html += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                            if (generatedImage && generatedImage.url) {
+                                html += `<div class="relative group">`;
+                                html += `<img src="${generatedImage.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">`;
+                                html += `<div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">`;
+                                html += `<i class="fas fa-expand text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>`;
+                                html += `</div>`;
+                                html += `</div>`;
+                            } else {
+                                html += `<div class="w-24 h-24 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center">`;
+                                html += `<span class="text-xs text-gray-400">Generating...</span>`;
+                                html += `</div>`;
+                            }
+                            html += `</td>`;
+                            html += `</tr>`;
+                        });
+                        
+                        html += `</tbody>`;
+                        html += `</table>`;
+                        html += `</div>`;
+                    }
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = html;
+        }
+        
+        async function pollForCompletion(scriptId) {
+            try {
+                const response = await fetch(`/script-processor/status/${scriptId}`);
+                const data = await response.json();
+                
+                if (data.success && data.completed) {
+                    // All processing is complete, show results
+                    showResults(data);
+                } else {
+                    // Update progress if available
+                    if (data.progress) {
+                        updateLoadingProgress(data.progress);
+                    }
+                    // Still processing, poll again in 2 seconds
+                    setTimeout(() => pollForCompletion(scriptId), 2000);
+                }
+            } catch (error) {
+                console.error('Error polling status:', error);
+                alert('Error checking processing status. Please try again.');
+                showFormState();
+            }
+        }
+        
+        function showStepLoading(title, description) {
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-6"></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${title}</h3>
+                    <p class="text-gray-600 text-center max-w-md mb-4">
+                        ${description}
+                    </p>
+                    <div class="w-full max-w-md">
+                        <div class="bg-gray-200 rounded-full h-3 mb-2">
+                            <div id="progressBar" class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-sm text-gray-600 text-center">Starting...</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateStepProgress(message) {
+            const progressText = document.getElementById('progressText');
+            if (progressText) {
+                progressText.textContent = message;
+            }
+        }
+        
+        function showFormState() {
+            // Stop image polling when going back to form
+            if (imagePollingInterval) {
+                clearInterval(imagePollingInterval);
+                imagePollingInterval = null;
+            }
+            // Reload the page to show the original form
+            window.location.reload();
+        }
+        
+        function showResults(data) {
+            // Create results HTML with back button
+            let resultsHTML = `
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">🎬 Generated B-Roll Content</h3>
+                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+            `;
+            
+            data.sentences.forEach((sentence, index) => {
+                resultsHTML += `<div class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">`;
+                resultsHTML += `<div class="flex items-center mb-4">`;
+                resultsHTML += `<div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">${index + 1}</div>`;
+                resultsHTML += `<h4 class="text-lg font-semibold text-gray-800">Sentence ${index + 1}</h4>`;
+                resultsHTML += `</div>`;
+                resultsHTML += `<p class="text-gray-700 mb-4 p-4 bg-white rounded-lg border border-blue-100 shadow-sm">${sentence.content}</p>`;
+                
+                if (sentence.shotlist && sentence.shotlist.length > 0) {
+                    resultsHTML += `<div class="overflow-x-auto">`;
+                    resultsHTML += `<table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">`;
+                    resultsHTML += `<thead class="bg-gradient-to-r from-gray-50 to-gray-100">`;
+                    resultsHTML += `<tr>`;
+                    resultsHTML += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>`;
+                    resultsHTML += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>`;
+                    resultsHTML += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>`;
+                    resultsHTML += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video Prompt</th>`;
+                    resultsHTML += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated Image</th>`;
+                    resultsHTML += `</tr>`;
+                    resultsHTML += `</thead>`;
+                    resultsHTML += `<tbody class="divide-y divide-gray-200">`;
+                    
+                    sentence.shotlist.forEach((shot, shotIndex) => {
+                        const generatedImage = sentence.assets.find(asset => 
+                            asset.type === 'image' && 
+                            asset.metadata && 
+                            asset.metadata.shot_index === shotIndex
+                        );
+                        
+                        resultsHTML += `<tr class="hover:bg-gray-50 transition-colors">`;
+                        resultsHTML += `<td class="px-4 py-3 text-sm text-gray-700 font-medium">${shot.script || 'N/A'}</td>`;
+                        resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">${shot.shot || 'N/A'}</td>`;
+                        resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                        if (shot.image_prompt) {
+                            resultsHTML += `<div class="bg-blue-50 border border-blue-200 rounded p-3 shadow-sm">`;
+                            resultsHTML += `<span class="text-xs text-blue-600 font-medium">🎨 Image:</span>`;
+                            resultsHTML += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.image_prompt}</p>`;
+                            resultsHTML += `</div>`;
+                        } else {
+                            resultsHTML += `<span class="text-gray-400">Not enhanced</span>`;
+                        }
+                        resultsHTML += `</td>`;
+                        resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                        if (shot.video_prompt) {
+                            resultsHTML += `<div class="bg-green-50 border border-green-200 rounded p-3 shadow-sm">`;
+                            resultsHTML += `<span class="text-xs text-green-600 font-medium">🎥 Video:</span>`;
+                            resultsHTML += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.video_prompt}</p>`;
+                            resultsHTML += `</div>`;
+                        } else {
+                            resultsHTML += `<span class="text-gray-400">Not enhanced</span>`;
+                        }
+                        resultsHTML += `</td>`;
+                        resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">`;
+                        if (generatedImage && generatedImage.url) {
+                            resultsHTML += `<div class="relative group">`;
+                            resultsHTML += `<img src="${generatedImage.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">`;
+                            resultsHTML += `<div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-200 flex items-center justify-center">`;
+                            resultsHTML += `<i class="fas fa-expand text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>`;
+                            resultsHTML += `</div>`;
+                            resultsHTML += `</div>`;
+                        } else {
+                            resultsHTML += `<div class="w-24 h-24 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center">`;
+                            resultsHTML += `<span class="text-xs text-gray-400">Generating...</span>`;
+                            resultsHTML += `</div>`;
+                        }
+                        resultsHTML += `</td>`;
+                        resultsHTML += `</tr>`;
+                    });
+                    
+                    resultsHTML += `</tbody>`;
+                    resultsHTML += `</table>`;
+                    resultsHTML += `</div>`;
+                }
+                
+                resultsHTML += `</div>`;
+            });
+            
+            // Replace modal content with results
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = resultsHTML;
+        }
+
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {
             const addProjectModal = document.getElementById('addProjectModal');
@@ -800,6 +1929,7 @@
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl opacity-20"></div>
                         <textarea 
+                            id="scriptTextarea"
                             class="relative w-full h-80 px-6 py-4 border-2 border-green-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500 focus:border-transparent resize-none bg-white shadow-inner transition-all duration-200 text-gray-700" 
                             placeholder="Paste or write your script here... This is the most important part for generating relevant b-roll content.
 
@@ -853,7 +1983,7 @@ Scene 2: Close-up of hands typing
                     <i class="fas fa-times mr-2"></i>
                     Cancel
                 </button>
-                <button class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                <button onclick="submitScript()" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     <i class="fas fa-magic"></i>
                     <span>Generate B-Roll</span>
                 </button>

@@ -61,8 +61,7 @@ class EnhancePromptsJob implements ShouldQueue
                 'video_prompt' => json_encode($enhancedShots)
             ]);
 
-            // Dispatch media generation for this sentence
-            GenerateMediaJob::dispatch($this->sentence);
+            // DON'T dispatch media generation - let user control it with Next button
 
             Log::info('Prompts enhanced successfully', [
                 'sentence_id' => $this->sentence->id
