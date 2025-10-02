@@ -46,7 +46,7 @@ return [
     ],
 
     'fal' => [
-        'api_key' => env('FAL_API_KEY'),
+        'api_key' => env('FAL_KEY'),
         'base_url' => env('FAL_BASE_URL', 'https://fal.run'),
     ],
 

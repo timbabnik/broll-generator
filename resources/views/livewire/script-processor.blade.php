@@ -90,6 +90,7 @@
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>
                                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video Prompt</th>
+                                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated Image</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-200">
@@ -116,6 +117,26 @@
                                                                 </div>
                                                             @else
                                                                 <span class="text-gray-400">Not enhanced</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-4 py-3 text-sm text-gray-600">
+                                                            @php
+                                                                $shotIndex = $loop->index;
+                                                                $generatedImage = $sentence->assets->where('type', 'image')
+                                                                    ->filter(function($asset) use ($shotIndex) {
+                                                                        $metadata = is_string($asset->metadata) ? json_decode($asset->metadata, true) : $asset->metadata;
+                                                                        return isset($metadata['shot_index']) && $metadata['shot_index'] == $shotIndex;
+                                                                    })
+                                                                    ->first();
+                                                            @endphp
+                                                            @if($generatedImage && $generatedImage->url)
+                                                                <img src="{{ $generatedImage->url }}" 
+                                                                     alt="Generated image for shot {{ $shotIndex + 1 }}" 
+                                                                     class="w-24 h-24 object-cover rounded border">
+                                                            @else
+                                                                <div class="w-24 h-24 bg-gray-100 border border-gray-200 rounded flex items-center justify-center">
+                                                                    <span class="text-xs text-gray-400">Generating...</span>
+                                                                </div>
                                                             @endif
                                                         </td>
                                                     </tr>

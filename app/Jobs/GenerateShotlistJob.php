@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Jobs\GenerateShotImageJob;
+
 use App\Models\Sentence;
 use App\Services\OpenAIService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,6 +63,11 @@ class GenerateShotlistJob implements ShouldQueue
                 'shotlist' => json_encode($enhancedShots),
                 'status' => 'completed'
             ]);
+
+            // Dispatch image generation for each shot
+            foreach ($enhancedShots as $index => $shot) {
+                GenerateShotImageJob::dispatch($this->sentence, $shot, $index);
+            }
 
             // Check if all sentences in the script are completed
             $this->checkScriptCompletion();

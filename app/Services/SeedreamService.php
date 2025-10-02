@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class FalAIImageService
+class SeedreamService
 {
     private string $apiKey;
     private string $baseUrl;
@@ -17,7 +17,7 @@ class FalAIImageService
     }
 
     /**
-     * Generate image from prompt using fal.ai
+     * Generate image from prompt using Seedream v4
      */
     public function generateImage(string $prompt): array
     {
@@ -25,7 +25,7 @@ class FalAIImageService
             $response = Http::withHeaders([
                 'Authorization' => 'Key ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/fal-ai/flux/dev', [
+            ])->post($this->baseUrl . '/fal-ai/bytedance/seedream/v4/text-to-image', [
                 'prompt' => $prompt,
                 'image_size' => 'square_hd',
                 'num_inference_steps' => 28,
@@ -39,7 +39,7 @@ class FalAIImageService
                     'success' => true,
                     'url' => $data['images'][0]['url'] ?? null,
                     'metadata' => [
-                        'model' => 'flux/dev',
+                        'model' => 'seedream-v4',
                         'size' => 'square_hd',
                         'prompt' => $prompt,
                         'response' => $data
@@ -47,7 +47,7 @@ class FalAIImageService
                 ];
             }
 
-            Log::error('fal.ai API error', [
+            Log::error('fal.ai Seedream API error', [
                 'status' => $response->status(),
                 'response' => $response->body()
             ]);
@@ -59,7 +59,7 @@ class FalAIImageService
             ];
 
         } catch (\Exception $e) {
-            Log::error('fal.ai API exception', [
+            Log::error('fal.ai Seedream API exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -78,7 +78,7 @@ class FalAIImageService
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Key ' . $this->apiKey,
             ])->get($this->baseUrl . '/images/' . $taskId);
 
             if ($response->successful()) {
@@ -91,7 +91,7 @@ class FalAIImageService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Seedream status check exception', [
+            Log::error('fal.ai Seedream status check exception', [
                 'message' => $e->getMessage()
             ]);
 

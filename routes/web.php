@@ -11,6 +11,25 @@ Route::get('/test', function () {
     return view('livewire.test');
 })->name('test');
 
+Route::get('/debug-assets', function () {
+    $assets = \App\Models\Asset::with('sentence')->get();
+    return response()->json([
+        'total_assets' => $assets->count(),
+        'image_assets' => $assets->where('type', 'image')->count(),
+        'video_assets' => $assets->where('type', 'video')->count(),
+        'assets' => $assets->map(function($asset) {
+            return [
+                'id' => $asset->id,
+                'type' => $asset->type,
+                'url' => $asset->url,
+                'status' => $asset->status,
+                'sentence_id' => $asset->sentence_id,
+                'metadata' => json_decode($asset->metadata, true)
+            ];
+        })
+    ]);
+});
+
 Route::get('/google-veo-generator', \App\Livewire\GoogleVeoGenerator::class)->name('google.veo.generator');
 
 Route::get('/script-processor', \App\Livewire\ScriptProcessor::class)->name('script.processor');
