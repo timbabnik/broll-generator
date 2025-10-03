@@ -1399,10 +1399,16 @@
                             <p class="text-gray-600 mt-1">Your AI-generated b-roll images are ready!</p>
                         </div>
                     </div>
-                    <button onclick="showFormState()" class="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Back to Form</span>
-                    </button>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="refreshImageResults()" class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm text-sm">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Refresh</span>
+                        </button>
+                        <button onclick="showFormState()" class="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Form</span>
+                        </button>
+                    </div>
                 </div>
             `;
             
@@ -1436,7 +1442,7 @@
                         ) : null;
                         
                         html += `
-                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-sentence="${index}" data-shot="${shotIndex}">
+                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 image-card cursor-pointer" data-sentence="${index}" data-shot="${shotIndex}" onclick="selectImage(this, ${index}, ${shotIndex})">
                                 <!-- Image Container -->
                                 <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200">
                                     ${imageAsset ? `
@@ -1454,6 +1460,12 @@
                                             </div>
                                         </div>
                                     `}
+                                    <!-- Selection Overlay -->
+                                    <div class="absolute inset-0 bg-blue-500 bg-opacity-0 transition-all duration-200 selection-overlay">
+                                        <div class="absolute top-3 left-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 selection-check">
+                                            <i class="fas fa-check text-blue-600 text-sm"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <!-- Content Section -->
@@ -1499,7 +1511,17 @@
             });
             
             html += `
-                <div class="mt-12 text-center bg-gradient-to-r from-purple-50 to-pink-50 rounded-3xl p-8 border border-purple-100">
+                <!-- Selection Counter -->
+                <div class="mt-12 text-center">
+                    <div class="inline-flex items-center space-x-2 bg-white rounded-full px-6 py-3 shadow-md border border-gray-200">
+                        <i class="fas fa-check-circle text-blue-500"></i>
+                        <span class="text-gray-700 font-semibold">
+                            <span id="selected-count">0</span> images selected
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center bg-gradient-to-r from-purple-50 to-pink-50 rounded-3xl p-8 border border-purple-100">
                     <div class="mb-6">
                         <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-check text-white text-2xl"></i>
@@ -1517,6 +1539,99 @@
             
             const modalContent = document.querySelector('#addProjectModal .bg-white');
             modalContent.innerHTML = html;
+            
+            // Restore selection state after modal is rendered
+            setTimeout(() => {
+                restoreSelectionState();
+                console.log('selectImage function available?', typeof window.selectImage);
+                console.log('Available image cards:', document.querySelectorAll('.image-card').length);
+            }, 100);
+        }
+        
+        // Development refresh function
+        async function refreshImageResults() {
+            if (!currentScriptId) {
+                alert('No script ID available for refresh');
+                return;
+            }
+            
+            try {
+                // Store current selection state before refresh
+                const currentSelections = new Set(selectedImages);
+                
+                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const data = await response.json();
+                
+                if (data.sentences) {
+                    showImageResults({ sentences: data.sentences });
+                    
+                    // Restore selection state after a short delay
+                    setTimeout(() => {
+                        selectedImages = currentSelections;
+                        restoreSelectionState();
+                    }, 150);
+                    
+                    console.log('Image results refreshed successfully');
+                } else {
+                    alert('Error loading script data for refresh');
+                }
+            } catch (error) {
+                console.error('Error refreshing image results:', error);
+                alert('Error refreshing results. Please try again.');
+            }
+        }
+        
+        // Restore selection state after modal refresh
+        function restoreSelectionState() {
+            selectedImages.forEach(selectionKey => {
+                const [sentenceIndex, shotIndex] = selectionKey.split('-').map(Number);
+                const imageCard = document.querySelector(`[data-sentence="${sentenceIndex}"][data-shot="${shotIndex}"]`);
+                
+                if (imageCard) {
+                    imageCard.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+                    const overlay = imageCard.querySelector('.selection-overlay');
+                    const check = imageCard.querySelector('.selection-check');
+                    
+                    if (overlay) overlay.classList.add('bg-opacity-20');
+                    if (check) check.classList.remove('opacity-0');
+                }
+            });
+            
+            updateSelectionUI();
+        }
+        
+        // Simple image selection
+        let selectedImages = new Set();
+        
+        function selectImage(element, sentenceIndex, shotIndex) {
+            const selectionKey = `${sentenceIndex}-${shotIndex}`;
+            
+            if (selectedImages.has(selectionKey)) {
+                // Deselect
+                selectedImages.delete(selectionKey);
+                element.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50');
+                const overlay = element.querySelector('.selection-overlay');
+                const check = element.querySelector('.selection-check');
+                if (overlay) overlay.classList.remove('bg-opacity-20');
+                if (check) check.classList.add('opacity-0');
+            } else {
+                // Select
+                selectedImages.add(selectionKey);
+                element.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+                const overlay = element.querySelector('.selection-overlay');
+                const check = element.querySelector('.selection-check');
+                if (overlay) overlay.classList.add('bg-opacity-20');
+                if (check) check.classList.remove('opacity-0');
+            }
+            
+            updateSelectionCounter();
+        }
+        
+        function updateSelectionCounter() {
+            const countElement = document.getElementById('selected-count');
+            if (countElement) {
+                countElement.textContent = selectedImages.size;
+            }
         }
         
         async function showStep1(scriptText) {
