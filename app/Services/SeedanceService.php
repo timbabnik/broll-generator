@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class FalAIVideoService
+class SeedanceService
 {
     private string $apiKey;
     private string $baseUrl;
@@ -17,28 +17,23 @@ class FalAIVideoService
     }
 
     /**
-     * Generate video from prompt using fal.ai
+     * Generate video from enhanced prompt and generated image using fal.ai Seedance
      */
-    public function generateVideo(string $prompt, ?string $imageUrl = null): array
+    public function generateVideo(string $enhancedVideoPrompt, string $imageUrl, int $duration = 3): array
     {
         try {
             $payload = [
-                'prompt' => $prompt,
-                'duration' => 5, // 5 seconds default
-                'fps' => 24,
-                'aspect_ratio' => '16:9',
-                'seed' => null, // Optional seed for reproducibility
+                'prompt' => $enhancedVideoPrompt,
+                'image_url' => $imageUrl,
+                'duration' => $duration,
+                'resolution' => '480p', // Lower resolution for cheaper cost
+                'enable_safety_checker' => false,
             ];
-
-            // If image URL provided, use it as reference
-            if ($imageUrl) {
-                $payload['image_url'] = $imageUrl;
-            }
 
             $response = Http::withHeaders([
                 'Authorization' => 'Key ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/fal-ai/seedance', $payload);
+            ])->timeout(120)->post($this->baseUrl . '/fal-ai/bytedance/seedance/v1/lite/image-to-video', $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -49,17 +44,17 @@ class FalAIVideoService
                     'task_id' => $data['request_id'] ?? null,
                     'metadata' => [
                         'model' => 'seedance',
-                        'duration' => 5,
+                        'duration' => 3,
                         'fps' => 24,
                         'aspect_ratio' => '16:9',
-                        'prompt' => $prompt,
+                        'enhanced_video_prompt' => $enhancedVideoPrompt,
                         'image_url' => $imageUrl,
                         'response' => $data
                     ]
                 ];
             }
 
-            Log::error('fal.ai API error', [
+            Log::error('fal.ai Seedance API error', [
                 'status' => $response->status(),
                 'response' => $response->body()
             ]);
@@ -71,7 +66,7 @@ class FalAIVideoService
             ];
 
         } catch (\Exception $e) {
-            Log::error('fal.ai API exception', [
+            Log::error('fal.ai Seedance API exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -90,11 +85,14 @@ class FalAIVideoService
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Key ' . $this->apiKey,
             ])->get($this->baseUrl . '/videos/' . $taskId);
 
             if ($response->successful()) {
-                return $response->json();
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
             }
 
             return [
@@ -103,7 +101,7 @@ class FalAIVideoService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Seedance status check exception', [
+            Log::error('fal.ai Seedance status check exception', [
                 'message' => $e->getMessage()
             ]);
 

@@ -235,6 +235,41 @@ Route::post('/script-processor/generate-images/{script}', function(\App\Models\S
     ]);
 })->name('script.processor.generate.images');
 
+Route::post('/script-processor/generate-videos/{script}', function(\App\Models\Script $script, \Illuminate\Http\Request $request) {
+    $selectedImages = $request->input('selected_images', []);
+    
+    if (empty($selectedImages)) {
+        return response()->json([
+            'success' => false,
+            'error' => 'No images selected for video generation'
+        ], 400);
+    }
+    
+    // Get the selected image assets
+    $imageAssets = \App\Models\Asset::whereIn('id', $selectedImages)
+        ->where('type', 'image')
+        ->where('status', 'completed')
+        ->get();
+    
+    if ($imageAssets->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'error' => 'No valid image assets found'
+        ], 400);
+    }
+    
+    // Dispatch video generation jobs for selected images
+    foreach ($imageAssets as $imageAsset) {
+        \App\Jobs\GenerateVideoJob::dispatch($imageAsset);
+    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Video generation started for ' . $imageAssets->count() . ' selected images',
+        'selected_count' => $imageAssets->count()
+    ]);
+})->name('script.processor.generate.videos');
+
 Route::get('/script-processor/status/{script}', function(\App\Models\Script $script) {
     $sentences = $script->sentences()->with('assets')->get();
     

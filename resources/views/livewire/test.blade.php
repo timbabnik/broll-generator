@@ -547,18 +547,14 @@
     <script>
         // Filter Button Functionality (Run First)
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, setting up buttons...');
             
             // Get all filter buttons
             const buttons = document.querySelectorAll('.filter-btn');
             const mediaSections = document.querySelectorAll('.media-section');
             
-            console.log('Found buttons:', buttons.length);
-            console.log('Found sections:', mediaSections.length);
             
             // Add click listener to each button
             buttons.forEach((button, index) => {
-                console.log('Adding click listener to button', index, button.textContent);
                 
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1222,13 +1218,12 @@
         async function showImageResultsImmediately() {
             try {
                 // Fetch current script data with assets
-                const response = await fetch(`/debug-script/${currentScriptId}`);
+                const response = await fetch(`/debug-script/${currentScriptId}?_t=${Date.now()}`);
                 const data = await response.json();
                 
                 if (data.sentences) {
-                    showImageResults({ sentences: data.sentences });
+                    showImageResults(data);
                     // Start polling to update images automatically
-                    console.log('Starting image polling...');
                     startImagePolling();
                 } else {
                     alert('Error loading script data. Please try again.');
@@ -1388,6 +1383,9 @@
         }
         
         function showImageResults(data) {
+            // Store the script data globally for use in selection
+            window.currentScriptData = data;
+            
             let html = `
                 <div class="flex items-center justify-between mb-8 px-6 py-8">
                     <div class="flex items-center space-x-4">
@@ -1435,14 +1433,17 @@
                     `;
                     
                     shotlistData.forEach((shot, shotIndex) => {
-                        const imageAsset = sentence.assets ? sentence.assets.find(asset => 
-                            asset.type === 'image' && 
-                            asset.metadata && 
-                            asset.metadata.shot_index === shotIndex
-                        ) : null;
+                        // Find the image asset for this shot
+                        const imageAsset = sentence.assets ? sentence.assets.find(asset => {
+                            // Ensure metadata is parsed as object
+                            const metadata = typeof asset.metadata === 'string' ? JSON.parse(asset.metadata) : asset.metadata;
+                            return asset.type === 'image' && 
+                                   metadata && 
+                                   metadata.shot_index === shotIndex;
+                        }) : null;
                         
                         html += `
-                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 image-card cursor-pointer" data-sentence="${index}" data-shot="${shotIndex}" onclick="selectImage(this, ${index}, ${shotIndex})">
+                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 image-card cursor-pointer" data-sentence="${index}" data-shot="${shotIndex}" data-asset-id="${imageAsset ? imageAsset.id : ''}" onclick="selectImage(this, ${index}, ${shotIndex})">
                                 <!-- Image Container -->
                                 <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200">
                                     ${imageAsset ? `
@@ -1527,13 +1528,19 @@
                             <i class="fas fa-check text-white text-2xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-2">Images Generated Successfully!</h3>
-                        <p class="text-gray-600">Your b-roll images are ready for your video project.</p>
+                        <p class="text-gray-600">Select the images you want to turn into videos, then click "Generate Videos".</p>
                     </div>
-                    <button onclick="showFormState()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3 mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <button onclick="generateVideos()" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3">
+                            <i class="fas fa-video"></i>
+                            <span>Generate Videos</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button onclick="showFormState()" class="bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3">
                         <i class="fas fa-plus"></i>
                         <span>Create New Project</span>
-                        <i class="fas fa-arrow-right"></i>
                     </button>
+                    </div>
                 </div>
             `;
             
@@ -1600,39 +1607,7 @@
             updateSelectionUI();
         }
         
-        // Simple image selection
-        let selectedImages = new Set();
-        
-        function selectImage(element, sentenceIndex, shotIndex) {
-            const selectionKey = `${sentenceIndex}-${shotIndex}`;
-            
-            if (selectedImages.has(selectionKey)) {
-                // Deselect
-                selectedImages.delete(selectionKey);
-                element.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50');
-                const overlay = element.querySelector('.selection-overlay');
-                const check = element.querySelector('.selection-check');
-                if (overlay) overlay.classList.remove('bg-opacity-20');
-                if (check) check.classList.add('opacity-0');
-            } else {
-                // Select
-                selectedImages.add(selectionKey);
-                element.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
-                const overlay = element.querySelector('.selection-overlay');
-                const check = element.querySelector('.selection-check');
-                if (overlay) overlay.classList.add('bg-opacity-20');
-                if (check) check.classList.remove('opacity-0');
-            }
-            
-            updateSelectionCounter();
-        }
-        
-        function updateSelectionCounter() {
-            const countElement = document.getElementById('selected-count');
-            if (countElement) {
-                countElement.textContent = selectedImages.size;
-            }
-        }
+        // Image selection functions will be moved to global scope
         
         async function showStep1(scriptText) {
             showStepLoading('Step 1: Splitting Script into Sentences', 'Breaking down your script into individual sentences...');
@@ -2188,6 +2163,9 @@
                 clearInterval(imagePollingInterval);
                 imagePollingInterval = null;
             }
+            // Clear selections when starting new project
+            selectedImages.clear();
+            selectedImageAssets = [];
             // Reload the page to show the original form
             window.location.reload();
         }
@@ -2744,5 +2722,355 @@ document.addEventListener('DOMContentLoaded', function() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
 });
+
+// Video polling function
+let videoPollingInterval = null;
+
+function startVideoPolling() {
+    showStepLoading('Generating Videos', 'Creating videos from selected images... This may take 1-2 minutes.');
+    
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes max
+    
+    videoPollingInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Video polling attempt ${pollCount}/${maxPolls}`);
+        
+        try {
+            const response = await fetch(`/debug-script/${currentScriptId}?_t=${Date.now()}`);
+            const data = await response.json();
+            
+            if (data.sentences) {
+                let hasVideos = false;
+                let totalVideos = 0;
+                
+                data.sentences.forEach(sentence => {
+                    if (sentence.assets) {
+                        const videoAssets = sentence.assets.filter(asset => asset.type === 'video');
+                        totalVideos += videoAssets.length;
+                        if (videoAssets.length > 0) {
+                            hasVideos = true;
+                        }
+                    }
+                });
+                
+                if (hasVideos) {
+                    console.log(`Found ${totalVideos} video assets!`);
+                    clearInterval(videoPollingInterval);
+                    videoPollingInterval = null;
+                    showVideoResults();
+                    return;
+                }
+            }
+            
+            if (pollCount >= maxPolls) {
+                console.log('Video polling timeout');
+                clearInterval(videoPollingInterval);
+                videoPollingInterval = null;
+                alert('Video generation is taking longer than expected. Please check back later or refresh the page.');
+                showImageResults({ sentences: [] });
+            }
+        } catch (error) {
+            console.error('Video polling error:', error);
+            clearInterval(videoPollingInterval);
+            videoPollingInterval = null;
+            alert('Error checking video status. Please try again.');
+            showImageResults({ sentences: [] });
+        }
+    }, 5000); // Check every 5 seconds
+}
+
+// Video Generation Functions (Global scope)
+async function generateVideos() {
+    console.log('generateVideos called');
+    console.log('selectedImageAssets:', selectedImageAssets);
+    console.log('selectedImages:', selectedImages);
+    
+    if (selectedImageAssets.length === 0) {
+        alert('Please select at least one image to generate videos from.');
+        return;
+    }
+
+    showStepLoading('Generating Videos', 'Creating videos from selected images...');
+    
+    try {
+        // Get the asset IDs from our simple array
+        const selectedAssetIds = selectedImageAssets.map(asset => asset.id);
+        
+        console.log('Selected assets:', selectedImageAssets);
+        console.log('Selected asset IDs:', selectedAssetIds);
+
+        const requestBody = {
+            selected_images: selectedAssetIds
+        };
+
+        const response = await fetch(`/script-processor/generate-videos/${currentScriptId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            // Start polling for video completion instead of showing success immediately
+            startVideoPolling();
+        } else {
+            alert('Error generating videos: ' + (data.error || 'Unknown error'));
+            showImageResults({ sentences: [] }); // Go back to image results
+        }
+    } catch (error) {
+        console.error('Error generating videos:', error);
+        alert('Error generating videos. Please try again.');
+        showImageResults({ sentences: [] }); // Go back to image results
+    }
+}
+
+async function showVideoResults() {
+    try {
+        const response = await fetch(`/debug-script/${currentScriptId}`);
+        const data = await response.json();
+        
+        let html = `
+            <div class="flex items-center justify-between mb-8 px-6 py-8">
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-video text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-gray-800">🎬 Generated Videos</h3>
+                        <p class="text-gray-600 mt-1">Your AI-generated b-roll videos are ready!</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="refreshVideoResults()" class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm text-sm">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button onclick="showFormState()" class="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Form</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Display videos by sentence
+        data.sentences.forEach((sentence, index) => {
+            const videoAssets = sentence.assets ? sentence.assets.filter(asset => asset.type === 'video') : [];
+            
+            if (videoAssets.length > 0) {
+                html += `
+                    <div class="mb-12 bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-xl border border-gray-100">
+                        <div class="mb-8">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                    ${index + 1}
+                                </div>
+                                <h4 class="text-xl font-bold text-gray-800">Sentence ${index + 1}</h4>
+                            </div>
+                            <p class="text-gray-700 text-lg leading-relaxed bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                                "${sentence.content}"
+                            </p>
+                        </div>
+                        
+                        <!-- Video Gallery -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                `;
+                
+                videoAssets.forEach((videoAsset, videoIndex) => {
+                    html += `
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
+                            <!-- Video Container -->
+                            <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200">
+                                ${videoAsset.url ? `
+                                    <video controls class="w-full h-full object-cover">
+                                        <source src="${videoAsset.url}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <div class="absolute top-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-md">
+                                        <span class="text-xs font-semibold text-gray-700">Video ${videoIndex + 1}</span>
+                                    </div>
+                                ` : `
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <div class="text-center">
+                                            <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <i class="fas fa-spinner fa-spin text-gray-400 text-2xl"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 font-medium">Generating...</p>
+                                        </div>
+                                    </div>
+                                `}
+                            </div>
+                            
+                            <!-- Content Section -->
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h5 class="text-lg font-semibold text-gray-800">Generated Video</h5>
+                                    <span class="text-sm text-gray-500">${videoAsset.status || 'processing'}</span>
+                                </div>
+                                
+                                ${videoAsset.metadata && videoAsset.metadata.enhanced_video_prompt ? `
+                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                                        <h6 class="text-sm font-semibold text-blue-700 mb-2 flex items-center">
+                                            <i class="fas fa-video text-blue-600 mr-2"></i>
+                                            Enhanced Video Prompt
+                                        </h6>
+                                        <p class="text-gray-700 text-sm leading-relaxed">${videoAsset.metadata.enhanced_video_prompt}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        
+        html += `
+            <div class="mt-8 text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-100">
+                <div class="mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Videos Generated Successfully!</h3>
+                    <p class="text-gray-600">Your b-roll videos are ready for your project.</p>
+                </div>
+                <button onclick="showFormState()" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3 mx-auto">
+                    <i class="fas fa-plus"></i>
+                    <span>Create New Project</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        `;
+        
+        const modalContent = document.querySelector('#addProjectModal .bg-white');
+        modalContent.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error showing video results:', error);
+        alert('Error loading video results. Please try again.');
+        showImageResults({ sentences: [] });
+    }
+}
+
+async function refreshVideoResults() {
+    if (!currentScriptId) {
+        alert('No script ID available for refresh');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/debug-script/${currentScriptId}`);
+        const data = await response.json();
+        
+        if (data.sentences) {
+            showVideoResults();
+            console.log('Video results refreshed successfully');
+        } else {
+            alert('Error loading script data for refresh');
+        }
+    } catch (error) {
+        console.error('Error refreshing video results:', error);
+        alert('Error refreshing results. Please try again.');
+    }
+}
+
+// Image Selection Functions (Global scope)
+let selectedImages = new Set();
+let selectedImageAssets = []; // Simple array to store selected image assets
+
+function selectImage(element, sentenceIndex, shotIndex) {
+    const selectionKey = `${sentenceIndex}-${shotIndex}`;
+    
+    // Check if the image has an asset ID (is fully generated)
+    const assetId = element.dataset.assetId;
+    
+    if (!assetId || assetId === '') {
+        alert('This image is still being generated. Please wait for it to complete before selecting it.');
+        return;
+    }
+    
+    if (selectedImages.has(selectionKey)) {
+        // Deselect
+        selectedImages.delete(selectionKey);
+        selectedImageAssets = selectedImageAssets.filter(asset => asset.id !== parseInt(assetId));
+        element.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50');
+        const overlay = element.querySelector('.selection-overlay');
+        const check = element.querySelector('.selection-check');
+        if (overlay) overlay.classList.remove('bg-opacity-20');
+        if (check) check.classList.add('opacity-0');
+    } else {
+        // Select
+        selectedImages.add(selectionKey);
+        
+        // Find the asset data from the current script data
+        const scriptData = window.currentScriptData;
+        console.log('selectImage - scriptData:', scriptData);
+        console.log('selectImage - sentenceIndex:', sentenceIndex);
+        
+        if (scriptData && scriptData.sentences && scriptData.sentences[sentenceIndex]) {
+            const sentence = scriptData.sentences[sentenceIndex];
+            console.log('selectImage - sentence:', sentence);
+            console.log('selectImage - sentence.assets:', sentence.assets);
+            
+            // Just get the first image asset for this sentence (simplified approach)
+            const imageAsset = sentence.assets ? sentence.assets.find(asset => asset.type === 'image') : null;
+            
+            console.log('selectImage - found imageAsset:', imageAsset);
+            
+            if (imageAsset) {
+                selectedImageAssets.push(imageAsset);
+                console.log('selectImage - added to selectedImageAssets:', selectedImageAssets);
+            }
+        } else {
+            console.log('selectImage - no script data or sentence not found');
+        }
+        
+        element.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+        const overlay = element.querySelector('.selection-overlay');
+        const check = element.querySelector('.selection-check');
+        if (overlay) overlay.classList.add('bg-opacity-20');
+        if (check) check.classList.remove('opacity-0');
+    }
+    
+    updateSelectionCounter();
+}
+
+function updateSelectionCounter() {
+    const countElement = document.getElementById('selected-count');
+    if (countElement) {
+        countElement.textContent = selectedImages.size;
+    }
+}
+
+function updateSelectionUI() {
+    updateSelectionCounter();
+}
+
+function restoreSelectionState() {
+    selectedImages.forEach(selectionKey => {
+        const [sentenceIndex, shotIndex] = selectionKey.split('-').map(Number);
+        const imageCard = document.querySelector(`[data-sentence="${sentenceIndex}"][data-shot="${shotIndex}"]`);
+        
+        if (imageCard) {
+            imageCard.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+            const overlay = imageCard.querySelector('.selection-overlay');
+            const check = imageCard.querySelector('.selection-check');
+            
+            if (overlay) overlay.classList.add('bg-opacity-20');
+            if (check) check.classList.remove('opacity-0');
+        }
+    });
+    
+    updateSelectionUI();
+}
 </script>
