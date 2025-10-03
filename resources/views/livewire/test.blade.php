@@ -812,39 +812,140 @@
                 const data = await response.json();
                 
                 let html = `
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">✅ B-Roll Generation Complete!</h3>
-                        <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>Back to Form</span>
-                        </button>
-                    </div>
-                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <p class="text-green-800 font-medium">Successfully processed ${data.sentences_count} sentences with enhanced prompts!</p>
-                    </div>
+                    <div class="min-h-screen bg-gray-50">
+                        <!-- Header -->
+                        <div class="bg-white shadow-sm border-b border-gray-200 px-8 py-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-6">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-green-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="text-3xl font-bold text-gray-900">B-Roll Generation Complete!</h1>
+                                            <p class="text-gray-600 mt-1">Successfully processed ${data.sentences_count} sentences with enhanced prompts</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="refreshFinalResults()" class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                                <button onclick="showFormState()" class="flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-arrow-left"></i>
+                                    <span>Back to Form</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="px-8 py-8">
+                            <div class="max-w-7xl mx-auto">
+                                <div class="space-y-8">
                 `;
                 
                 data.sentences.forEach((sentence, index) => {
                     if (sentence.shotlist) {
                         const shotlistData = JSON.parse(sentence.shotlist);
                         html += `
-                            <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
-                                <h4 class="font-semibold text-gray-800 mb-3">Sentence ${index + 1}: ${sentence.content.substring(0, 50)}...</h4>
-                                <div class="space-y-2">
+                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                                <!-- Sentence Header (Always Visible) -->
+                                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-6 cursor-pointer" onclick="toggleSentence(${index})">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                                ${index + 1}
+                                            </div>
+                                            <div>
+                                                <h2 class="text-2xl font-bold text-white">Sentence ${index + 1}</h2>
+                                                <p class="text-blue-100 mt-1 text-lg">${sentence.content.length > 80 ? sentence.content.substring(0, 80) + '...' : sentence.content}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-blue-100 text-sm">${shotlistData.length} shots</span>
+                                            <i id="arrow-${index}" class="fas fa-chevron-down text-white transition-transform duration-200"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Collapsible Shots Content -->
+                                <div id="content-${index}" class="hidden">
+                                    <div class="p-8">
+                                        <div class="mb-6">
+                                            <p class="text-gray-700 text-lg leading-relaxed bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                                                "${sentence.content}"
+                                            </p>
+                                        </div>
+                                        <div class="grid gap-6">
                         `;
                         
                         shotlistData.forEach((shot, shotIndex) => {
                             html += `
-                                <div class="p-3 bg-blue-50 rounded border border-blue-200">
-                                    <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
-                                    <div class="text-sm text-gray-600 mt-1">Original: ${shot.shot}</div>
-                                    <div class="text-sm text-blue-600 mt-1 font-medium">Enhanced Image: ${shot.image_prompt || 'Not enhanced'}</div>
-                                    <div class="text-sm text-green-600 mt-1 font-medium">Enhanced Video: ${shot.video_prompt || 'Not enhanced'}</div>
+                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                                    <div class="flex items-start space-x-6">
+                                        <!-- Shot Number -->
+                                        <div class="flex-shrink-0">
+                                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+                                                ${shot.second || shotIndex}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Content -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                                <!-- Left Column - Script and Prompts -->
+                                                <div class="space-y-6">
+                                                    <!-- Script Text -->
+                                                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                                        <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                                                            <i class="fas fa-file-text text-gray-500 mr-2"></i>
+                                                            Script Text
+                                                        </h3>
+                                                        <p class="text-gray-700 font-medium">"${shot.script || 'N/A'}"</p>
+                                                    </div>
+                                                    
+                                                    <!-- Original Shot -->
+                                                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                                        <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                                                            <i class="fas fa-eye text-gray-500 mr-2"></i>
+                                                            Visual Description
+                                                        </h3>
+                                                        <p class="text-gray-600">${shot.shot || 'N/A'}</p>
+                                                    </div>
+                                                    
+                                                    <!-- Image Prompt -->
+                                                    ${shot.image_prompt ? `
+                                                        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-5">
+                                                            <div class="flex items-center mb-3">
+                                                                <i class="fas fa-palette text-blue-600 mr-3 text-lg"></i>
+                                                                <h3 class="text-lg font-semibold text-blue-800">Enhanced Image Prompt</h3>
+                                                            </div>
+                                                            <p class="text-gray-700 leading-relaxed text-sm">${shot.image_prompt}</p>
+                                                        </div>
+                                                    ` : ''}
+                                                    
+                                                </div>
+                                                
+                                                <!-- Right Column - Image Placeholder -->
+                                                <div class="flex justify-center xl:justify-end">
+                                                    <div class="w-48 h-48 bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-300 rounded-xl flex items-center justify-center shadow-inner">
+                                                        <div class="text-center">
+                                                            <i class="fas fa-image text-gray-400 text-4xl mb-3"></i>
+                                                            <p class="text-sm text-gray-500 font-medium">Ready for Image Generation</p>
+                                                            <p class="text-xs text-gray-400 mt-1">Click "Generate Images" to create</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             `;
                         });
                         
                         html += `
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -852,10 +953,20 @@
                 });
                 
                 html += `
-                    <div class="mt-6 text-center">
-                        <button onclick="generateImages()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                            Generate Images →
-                        </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="bg-white border-t border-gray-200 px-8 py-6">
+                            <div class="max-w-7xl mx-auto flex justify-center">
+                                <button onclick="generateImages()" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3">
+                                    <i class="fas fa-magic"></i>
+                                    <span>Generate Images</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
                 
@@ -865,6 +976,220 @@
                 console.error('Error showing results:', error);
                 alert('Error loading results. Please try again.');
                 showFormState();
+            }
+        }
+        
+        function refreshFinalResults() {
+            // Get the current script ID from the global variable
+            const scriptId = currentScriptId;
+            if (scriptId) {
+                // Show loading state
+                const refreshButton = document.querySelector('button[onclick="refreshFinalResults()"]');
+                const originalContent = refreshButton.innerHTML;
+                refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Refreshing...</span>';
+                refreshButton.disabled = true;
+                
+                // Fetch updated results
+                fetch(`/debug-script/${scriptId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the results display by calling the function directly
+                        updateFinalResultsDisplay(data);
+                        
+                        // Restore button
+                        refreshButton.innerHTML = originalContent;
+                        refreshButton.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error refreshing results:', error);
+                        
+                        // Restore button on error
+                        refreshButton.innerHTML = originalContent;
+                        refreshButton.disabled = false;
+                    });
+            } else {
+                console.error('No script ID available for refresh');
+            }
+        }
+        
+        function updateFinalResultsDisplay(data) {
+            let html = `
+                <div class="min-h-screen bg-gray-50">
+                    <!-- Header -->
+                    <div class="bg-white shadow-sm border-b border-gray-200 px-8 py-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-6">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-check text-green-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-3xl font-bold text-gray-900">B-Roll Generation Complete!</h1>
+                                        <p class="text-gray-600 mt-1">Successfully processed ${data.sentences_count} sentences with enhanced prompts</p>
+                                    </div>
+                                </div>
+                                <button onclick="refreshFinalResults()" class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                            <button onclick="showFormState()" class="flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Back to Form</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="px-8 py-8">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="space-y-4">
+            `;
+            
+            data.sentences.forEach((sentence, index) => {
+                if (sentence.shotlist) {
+                    const shotlistData = JSON.parse(sentence.shotlist);
+                    const shotsCount = shotlistData.length;
+                    
+                    html += `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <!-- Sentence Header (Always Visible) -->
+                            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 cursor-pointer hover:from-blue-600 hover:to-indigo-700 transition-all duration-200" onclick="toggleSentence(${index})">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                            ${index + 1}
+                                        </div>
+                                        <div>
+                                            <h2 class="text-xl font-bold text-white">Sentence ${index + 1}</h2>
+                                            <p class="text-blue-100 mt-1">"${sentence.content}"</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-white text-sm">
+                                            <span class="font-medium">${shotsCount} shots</span>
+                                        </div>
+                                        <div class="transform transition-transform duration-200" id="arrow-${index}">
+                                            <i class="fas fa-chevron-down text-white text-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Collapsible Content -->
+                            <div class="hidden" id="content-${index}" style="display: none;">
+                                <div class="p-6">
+                                    <div class="grid gap-6">
+                    `;
+                    
+                    shotlistData.forEach((shot, shotIndex) => {
+                        html += `
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                                <div class="flex items-start space-x-6">
+                                    <!-- Shot Number -->
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-700">
+                                            ${shot.second || shotIndex}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Content -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                            <!-- Left Column - Script and Prompts -->
+                                            <div class="space-y-6">
+                                                <!-- Script Text -->
+                                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                                    <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                                                        <i class="fas fa-file-text text-gray-500 mr-2"></i>
+                                                        Script Text
+                                                    </h3>
+                                                    <p class="text-gray-700 font-medium">"${shot.script || 'N/A'}"</p>
+                                                </div>
+                                                
+                                                <!-- Original Shot -->
+                                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                                    <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                                                        <i class="fas fa-eye text-gray-500 mr-2"></i>
+                                                        Visual Description
+                                                    </h3>
+                                                    <p class="text-gray-600">${shot.shot || 'N/A'}</p>
+                                                </div>
+                                                
+                                                <!-- Image Prompt -->
+                                                ${shot.image_prompt ? `
+                                                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-5">
+                                                        <div class="flex items-center mb-3">
+                                                            <i class="fas fa-palette text-blue-600 mr-3 text-lg"></i>
+                                                            <h3 class="text-lg font-semibold text-blue-800">Enhanced Image Prompt</h3>
+                                                        </div>
+                                                        <p class="text-gray-700 leading-relaxed text-sm">${shot.image_prompt}</p>
+                                                    </div>
+                                                ` : ''}
+                                                
+                                            </div>
+                                            
+                                            <!-- Right Column - Image Placeholder -->
+                                            <div class="flex justify-center xl:justify-end">
+                                                <div class="w-48 h-48 bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-300 rounded-xl flex items-center justify-center shadow-inner">
+                                                    <div class="text-center">
+                                                        <i class="fas fa-image text-gray-400 text-4xl mb-3"></i>
+                                                        <p class="text-sm text-gray-500 font-medium">Ready for Image Generation</p>
+                                                        <p class="text-xs text-gray-400 mt-1">Click "Generate Images" to create</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="bg-white border-t border-gray-200 px-8 py-6">
+                        <div class="max-w-7xl mx-auto flex justify-center">
+                            <button onclick="generateImages()" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3">
+                                <i class="fas fa-magic"></i>
+                                <span>Generate Images</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update the modal content
+            const modalContent = document.querySelector('#addProjectModal .bg-white');
+            modalContent.innerHTML = html;
+        }
+        
+        function toggleSentence(index) {
+            const content = document.getElementById(`content-${index}`);
+            const arrow = document.getElementById(`arrow-${index}`);
+            
+            if (content.style.display === 'none' || content.classList.contains('hidden')) {
+                content.style.display = 'block';
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
             }
         }
         
@@ -971,14 +1296,19 @@
                             console.log(`First asset shot_index:`, sentence.assets[0].metadata?.shot_index);
                         }
                         
-                        // Find the image cell in the table and update it
-                        const imageCell = document.querySelector(`[data-sentence="${sentenceIndex}"][data-shot="${shotIndex}"] .image-cell`);
-                        console.log(`Image cell for sentence ${sentenceIndex}, shot ${shotIndex}:`, imageCell);
+                        // Find the image container in the new gallery layout and update it
+                        const imageContainer = document.querySelector(`[data-sentence="${sentenceIndex}"][data-shot="${shotIndex}"] .aspect-video`);
+                        console.log(`Image container for sentence ${sentenceIndex}, shot ${shotIndex}:`, imageContainer);
                         
-                        if (imageCell) {
+                        if (imageContainer) {
                             if (imageAsset && imageAsset.url) {
                                 console.log(`Updating image for sentence ${sentenceIndex}, shot ${shotIndex} with URL: ${imageAsset.url}`);
-                                imageCell.innerHTML = `<img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded border">`;
+                                imageContainer.innerHTML = `
+                                    <img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-full h-full object-cover">
+                                    <div class="absolute top-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-md">
+                                        <span class="text-xs font-semibold text-gray-700">Shot ${shotIndex + 1}</span>
+                                    </div>
+                                `;
                             } else {
                                 console.log(`No image asset found for sentence ${sentenceIndex}, shot ${shotIndex}`);
                             }
@@ -1059,9 +1389,17 @@
         
         function showImageResults(data) {
             let html = `
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">📸 Generated Images</h3>
-                    <button onclick="showFormState()" class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                <div class="flex items-center justify-between mb-8 px-6 py-8">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-images text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-gray-800">📸 Generated Images</h3>
+                            <p class="text-gray-600 mt-1">Your AI-generated b-roll images are ready!</p>
+                        </div>
+                    </div>
+                    <button onclick="showFormState()" class="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-arrow-left"></i>
                         <span>Back to Form</span>
                     </button>
@@ -1073,19 +1411,21 @@
                     const shotlistData = JSON.parse(sentence.shotlist);
                     
                     html += `
-                        <div class="mb-8">
-                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Sentence ${index + 1}: ${sentence.content}</h4>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-                                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Part</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Shot</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image Prompt</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated Image</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
+                        <div class="mb-12 bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-xl border border-gray-100">
+                            <div class="mb-8">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                        ${index + 1}
+                                    </div>
+                                    <h4 class="text-xl font-bold text-gray-800">Sentence ${index + 1}</h4>
+                                </div>
+                                <p class="text-gray-700 text-lg leading-relaxed bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                                    "${sentence.content}"
+                                </p>
+                            </div>
+                            
+                            <!-- Image Gallery -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
                     `;
                     
                     shotlistData.forEach((shot, shotIndex) => {
@@ -1096,33 +1436,62 @@
                         ) : null;
                         
                         html += `
-                            <tr class="hover:bg-gray-50 transition-colors" data-sentence="${index}" data-shot="${shotIndex}">
-                                <td class="px-4 py-3 text-sm text-gray-700 font-medium">${shot.script || 'N/A'}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">${shot.shot || 'N/A'}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    ${shot.image_prompt ? `
-                                        <div class="bg-blue-50 border border-blue-200 rounded p-3 shadow-sm">
-                                            <span class="text-xs text-blue-600 font-medium">🎨 Image:</span>
-                                            <p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.image_prompt}</p>
-                                        </div>
-                                    ` : `<span class="text-gray-400">Not enhanced</span>`}
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-600 image-cell">
+                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1" data-sentence="${index}" data-shot="${shotIndex}">
+                                <!-- Image Container -->
+                                <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200">
                                     ${imageAsset ? `
-                                        <img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-24 h-24 object-cover rounded border">
+                                        <img src="${imageAsset.url}" alt="Generated image for shot ${shotIndex + 1}" class="w-full h-full object-cover">
+                                        <div class="absolute top-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-full px-3 py-1 shadow-md">
+                                            <span class="text-xs font-semibold text-gray-700">Shot ${shotIndex + 1}</span>
+                                        </div>
                                     ` : `
-                                        <div class="w-24 h-24 bg-gray-100 border border-gray-200 rounded flex items-center justify-center">
-                                            <span class="text-xs text-gray-400">Generating...</span>
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <div class="text-center">
+                                                <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                    <i class="fas fa-spinner fa-spin text-gray-400 text-2xl"></i>
+                                                </div>
+                                                <p class="text-sm text-gray-500 font-medium">Generating...</p>
+                                            </div>
                                         </div>
                                     `}
-                                </td>
-                            </tr>
+                                </div>
+                                
+                                <!-- Content Section -->
+                                <div class="p-6">
+                                    <!-- Script Part -->
+                                    <div class="mb-4">
+                                        <h5 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                            <i class="fas fa-file-text text-blue-500 mr-2"></i>
+                                            Script Part
+                                        </h5>
+                                        <p class="text-gray-800 font-medium">${shot.script || 'N/A'}</p>
+                                    </div>
+                                    
+                                    <!-- Visual Description -->
+                                    <div class="mb-4">
+                                        <h5 class="text-sm font-semibold text-gray-600 mb-2 flex items-center">
+                                            <i class="fas fa-eye text-green-500 mr-2"></i>
+                                            Visual Description
+                                        </h5>
+                                        <p class="text-gray-700 text-sm leading-relaxed">${shot.shot || 'N/A'}</p>
+                                    </div>
+                                    
+                                    <!-- Image Prompt -->
+                                    ${shot.image_prompt ? `
+                                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                                            <h5 class="text-sm font-semibold text-blue-700 mb-2 flex items-center">
+                                                <i class="fas fa-palette text-blue-600 mr-2"></i>
+                                                Enhanced Image Prompt
+                                            </h5>
+                                            <p class="text-gray-700 text-sm leading-relaxed">${shot.image_prompt}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
                         `;
                     });
                     
                     html += `
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     `;
@@ -1130,9 +1499,18 @@
             });
             
             html += `
-                <div class="mt-6 text-center">
-                    <button onclick="showFormState()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                        Create New Project →
+                <div class="mt-12 text-center bg-gradient-to-r from-purple-50 to-pink-50 rounded-3xl p-8 border border-purple-100">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Images Generated Successfully!</h3>
+                        <p class="text-gray-600">Your b-roll images are ready for your video project.</p>
+                    </div>
+                    <button onclick="showFormState()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-3 mx-auto">
+                        <i class="fas fa-plus"></i>
+                        <span>Create New Project</span>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             `;
@@ -1465,7 +1843,6 @@
                                 <div class="p-3 bg-green-50 rounded border border-green-200">
                                     <div class="text-sm font-medium text-gray-700">Shot ${shotIndex + 1}: ${shot.script}</div>
                                     <div class="text-sm text-gray-600 mt-1">Original: ${shot.shot}</div>
-                                    <div class="text-sm text-green-600 mt-1 font-medium">Enhanced: ${shot.video_prompt || 'Not enhanced'}</div>
                                 </div>
                             `;
                         });
@@ -1609,14 +1986,7 @@
                             }
                             html += `</td>`;
                             html += `<td class="px-4 py-3 text-sm text-gray-600">`;
-                            if (shot.video_prompt) {
-                                html += `<div class="bg-green-50 border border-green-200 rounded p-3 shadow-sm">`;
-                                html += `<span class="text-xs text-green-600 font-medium">🎥 Video:</span>`;
-                                html += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.video_prompt}</p>`;
-                                html += `</div>`;
-                            } else {
-                                html += `<span class="text-gray-400">Not enhanced</span>`;
-                            }
+                            html += `<span class="text-gray-400">Video prompts hidden</span>`;
                             html += `</td>`;
                             html += `<td class="px-4 py-3 text-sm text-gray-600">`;
                             if (generatedImage && generatedImage.url) {
@@ -1762,14 +2132,7 @@
                         }
                         resultsHTML += `</td>`;
                         resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">`;
-                        if (shot.video_prompt) {
-                            resultsHTML += `<div class="bg-green-50 border border-green-200 rounded p-3 shadow-sm">`;
-                            resultsHTML += `<span class="text-xs text-green-600 font-medium">🎥 Video:</span>`;
-                            resultsHTML += `<p class="text-xs text-gray-700 mt-1 leading-relaxed">${shot.video_prompt}</p>`;
-                            resultsHTML += `</div>`;
-                        } else {
-                            resultsHTML += `<span class="text-gray-400">Not enhanced</span>`;
-                        }
+                        resultsHTML += `<span class="text-gray-400">Video prompts hidden</span>`;
                         resultsHTML += `</td>`;
                         resultsHTML += `<td class="px-4 py-3 text-sm text-gray-600">`;
                         if (generatedImage && generatedImage.url) {
@@ -1818,8 +2181,8 @@
 </html>
 
 <!-- Add Project Modal -->
-<div id="addProjectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full mx-4 max-h-[95vh] overflow-y-auto border border-gray-100">
+<div id="addProjectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-7xl w-full mx-4 max-h-[98vh] overflow-y-auto border border-gray-100">
         <!-- Modal Header -->
         <div class="flex items-center justify-between p-8 border-b border-gray-100 bg-gradient-to-r from-green-50 to-blue-50 rounded-t-2xl">
             <div class="flex items-center space-x-3">
@@ -1837,7 +2200,7 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="p-8">
+        <div class="p-12">
             <form class="space-y-8">
                 <!-- Project Name -->
                 <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
